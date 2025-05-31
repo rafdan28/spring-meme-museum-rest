@@ -2,9 +2,8 @@ package com.spring_meme_museum_rest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class })
+@SpringBootApplication
 public class SpringMemeMuseumRestApplication {
 
 	public static void main(String[] args) {
