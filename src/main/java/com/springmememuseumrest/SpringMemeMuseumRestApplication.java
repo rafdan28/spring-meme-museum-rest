@@ -1,4 +1,4 @@
-package com.spring_meme_museum_rest;
+package com.springmememuseumrest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
