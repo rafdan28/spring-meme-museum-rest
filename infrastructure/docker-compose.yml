@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:17.5
+    container_name: mememuseum-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mememuseum
+      POSTGRES_USER: mememuseum_user
+      POSTGRES_PASSWORD: mememuseum_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
