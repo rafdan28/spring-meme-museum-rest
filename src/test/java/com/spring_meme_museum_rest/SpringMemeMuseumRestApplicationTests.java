@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class SpringMemeMuseumRestApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void contextLoads() { // add the test
 	}
 
 }
