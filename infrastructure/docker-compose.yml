@@ -1,7 +1,6 @@
 services:
   postgres:
     image: postgres:17.5
-    container_name: mememuseum-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: mememuseum
@@ -11,3 +10,49 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mememuseum-network
+
+  seaweedfs-master:
+    image: chrislusf/seaweedfs
+    command: "master -ip=seaweedfs-master -mdir=/data"
+    ports:
+      - "9333:9333"  # Web UI del master
+    volumes:
+      - seaweed_master_data:/data
+    networks:
+      - mememuseum-network
+
+  seaweedfs-volume:
+    image: chrislusf/seaweedfs
+    command: "volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -dir=/data"
+    ports:
+      - "8088:8088"  # Web UI del volume + API di caricamento
+    depends_on:
+      - seaweedfs-master
+    volumes:
+      - seaweed_volume_data:/data
+    networks:
+      - mememuseum-network
+
+  seaweedfs-filer:
+    image: chrislusf/seaweedfs
+    command: "filer -master=seaweedfs-master:9333"
+    ports:
+      - "8888:8888"  # Web UI del Filer + REST API
+    depends_on:
+      - seaweedfs-master
+    volumes:
+      - seaweed_filer_data:/data
+    networks:
+      - mememuseum-network
+
+networks:
+  mememuseum-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  seaweed_master_data:
+  seaweed_volume_data:
+  seaweed_filer_data:
