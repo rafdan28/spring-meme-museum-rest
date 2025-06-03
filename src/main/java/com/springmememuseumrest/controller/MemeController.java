@@ -12,27 +12,27 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.springmememuseumrest.service.storage.ImageStorageService;
 
-@RestController
-@RequestMapping("/api/memes")
-@RequiredArgsConstructor
+// @RestController
+// @RequestMapping("/api/memes")
+// @RequiredArgsConstructor
 public class MemeController {
 
-    @Autowired
-    private ImageStorageService imageStorageService;
+    // @Autowired
+    // private ImageStorageService imageStorageService;
 
-    @PostMapping
-    @Transactional
-    public ResponseEntity<?> uploadMeme(
-            @RequestParam("title") String title,
-            @RequestParam("tags") List<String> tags,
-            @RequestParam("image") MultipartFile image
-    ) {
-        try {
-           imageStorageService.uploadImage(image);
+    // @PostMapping
+    // @Transactional
+    // public ResponseEntity<?> uploadMeme(
+    //         @RequestParam("title") String title,
+    //         @RequestParam("tags") List<String> tags,
+    //         @RequestParam("image") MultipartFile image
+    // ) {
+    //     try {
+    //        imageStorageService.uploadImage(image);
 
-            return ResponseEntity.ok("Meme caricato con successo!");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Errore durante l'upload del meme.");
-        }
-    }
+    //         return ResponseEntity.ok("Meme caricato con successo!");
+    //     } catch (Exception e) {
+    //         return ResponseEntity.internalServerError().body("Errore durante l'upload del meme.");
+    //     }
+    // }
 }
