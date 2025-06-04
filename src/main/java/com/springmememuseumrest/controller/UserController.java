@@ -20,7 +20,8 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<JwtResponse> apiUsersLoginPost(LoginRequest loginRequest) {
-        return ResponseEntity.ok().build();
+        JwtResponse jwt = userService.userslogin(loginRequest);
+        return ResponseEntity.ok(jwt);
     }
 
     @Override

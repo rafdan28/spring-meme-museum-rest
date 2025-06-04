@@ -1,12 +1,14 @@
 package com.springmememuseumrest.service;
 
 import org.openapispec.model.JwtResponse;
+import org.openapispec.model.LoginRequest;
 import org.openapispec.model.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.springmememuseumrest.config.JwtConfig;
+import com.springmememuseumrest.config.exception.UnauthorizedException;
 import com.springmememuseumrest.model.User;
 import com.springmememuseumrest.repository.UserRepository;
 
@@ -25,25 +27,35 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public boolean usersRegister(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername()) || userRepository.existsByEmail(request.getEmail())) {
+    public boolean usersRegister(RegisterRequest registerRequest) {
+        if (userRepository.existsByUsername(registerRequest.getUsername()) || userRepository.existsByEmail(registerRequest.getEmail())) {
             return false;
         }
 
         User user = new User();
-        user.setName(request.getName());
-        user.setSurname(request.getSurname());
-        user.setEmail(request.getEmail());
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(registerRequest.getName());
+        user.setSurname(registerRequest.getSurname());
+        user.setEmail(registerRequest.getEmail());
+        user.setUsername(registerRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         
         userRepository.save(user);
 
-        String token = jwtConfig.generateToken(user);
-
-        JwtResponse jwtResponse = new JwtResponse();
-        jwtResponse.setAccessToken(token);
-        jwtResponse.setTokenType("Bearer");
         return true;
+    }
+
+    @Override
+    public JwtResponse userslogin(LoginRequest loginRequest) {
+        User user = userRepository.findByUsername(loginRequest.getUsername());
+        if(user == null) throw new UnauthorizedException("Credenziali non valide");
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new UnauthorizedException("Credenziali non valide");
+        }
+
+        JwtResponse jwt = new JwtResponse();
+        jwt.setAccessToken(jwtConfig.generateToken(user));
+        jwt.setTokenType("JWT");
+        return jwt;
     }
 }

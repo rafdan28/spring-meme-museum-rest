@@ -41,8 +41,9 @@ public class JwtConfig {
         claims.put("username", user.getUsername());
 
         return Jwts.builder()
+                .setHeaderParam("alg", "HS256")  
+                .setHeaderParam("typ", "JWT")
                 .setClaims(claims)
-                .setSubject(user.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(base64Secret)), SignatureAlgorithm.HS256)
