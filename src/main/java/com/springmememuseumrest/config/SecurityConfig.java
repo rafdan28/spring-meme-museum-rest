@@ -20,13 +20,14 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/", "/index.html", "/css/**", 
-                    "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
+                    "/v3/api-docs/**", 
+                    "/swagger-ui.html", "/swagger-ui/**",
                     "/api/users/login", 
                     "/api/users/register"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt())
+            // .oauth2ResourceServer(oauth2 -> oauth2.jwt())
             .formLogin(form -> form.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
