@@ -21,6 +21,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Setter
 public class Tag {
 
+    public Tag(String name) {
+        this.name = name;
+    }
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -12,6 +12,7 @@ import com.springmememuseumrest.service.UserService;
 
 @RestController
 public class UserController implements UserApi {
+
     private final UserService userService;
 
     public UserController(UserService userService) {

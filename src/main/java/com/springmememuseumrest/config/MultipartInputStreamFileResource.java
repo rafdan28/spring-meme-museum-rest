@@ -1,4 +1,4 @@
-package com.springmememuseumrest.service.storage;
+package com.springmememuseumrest.config;
 
 import org.springframework.core.io.InputStreamResource;
 

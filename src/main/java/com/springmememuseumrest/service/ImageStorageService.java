@@ -1,4 +1,4 @@
-package com.springmememuseumrest.service.storage;
+package com.springmememuseumrest.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -7,6 +7,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.springmememuseumrest.config.MultipartInputStreamFileResource;
 
 import java.io.IOException;
 import java.util.UUID;
