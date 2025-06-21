@@ -1,0 +1,309 @@
+openapi: 3.0.1
+info:
+  title: MEMEMUSEUM - Meme API
+  version: 1.0.0
+paths:
+  /api/memes:
+    post:
+      tags:
+        - Meme
+      summary: Carica un nuovo meme
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, tags, image]
+              properties:
+                title:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Meme caricato
+        '400':
+          description: Dati non validi
+        '401':
+          description: Non autorizzato
+
+    get:
+      tags:
+        - Meme
+      summary: Elenco dei meme con ricerca e filtri
+      parameters:
+        - name: tags
+          in: query
+          description: Filtra per uno o più tag
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: sort
+          in: query
+          description: Ordina per `uploadDate`, `upvotes`, `downvotes`
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: asc o desc
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Lista di meme
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MemeResponse'
+
+  /api/memes/daily:
+    get:
+      tags:
+        - Meme
+      summary: Meme del giorno
+      responses:
+        '200':
+          description: Meme del giorno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemeResponse'
+
+  /api/memes/{id}:
+    get:
+      tags:
+        - Meme
+      summary: Visualizza un singolo meme
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Dettagli del meme
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemeResponse'
+        '404':
+          description: Meme non trovato
+
+    delete:
+      tags:
+        - Meme
+      summary: Elimina un proprio meme
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Cancellato con successo
+        '403':
+          description: Accesso negato
+        '404':
+          description: Meme non trovato
+          
+  /api/memes/{id}/vote:
+    post:
+      tags:
+        - Meme
+      summary: Vota un meme (upvote o downvote)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [value]
+              properties:
+                value:
+                  type: integer
+                  enum: [1, -1]
+                  description: 1 = upvote, -1 = downvote
+      responses:
+        '200':
+          description: Voto registrato
+        '401':
+          description: Non autorizzato
+        '409':
+          description: Voto già registrato per questo meme
+    
+    delete:
+      tags:
+        - Meme
+      summary: Elimina il proprio voto da un meme
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Voto eliminato
+        '401':
+          description: Non autorizzato
+        '404':
+          description: Voto non trovato
+
+  /api/memes/{id}/comments:
+    get:
+      tags:
+        - Meme
+      summary: Ottiene i commenti associati a un meme
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista commenti
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentResponse'
+
+    post:
+      tags:
+        - Meme
+      summary: Aggiunge un commento a un meme
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+      responses:
+        '201':
+          description: Commento creato
+        '401':
+          description: Non autorizzato
+  
+  /api/memes/{id}/comments/{commentId}:
+    delete:
+      tags:
+        - Meme
+      summary: Elimina un proprio commento a un meme
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Commento eliminato
+        '403':
+          description: Non autorizzato a eliminare questo commento
+        '404':
+          description: Commento non trovato
+          
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    MemeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        imageUrl:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        author:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        upvotes:
+          type: integer
+        downvotes:
+          type: integer
+          
+    CommentRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          example: "Questo meme è fantastico!"
+
+    CommentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+        author:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
