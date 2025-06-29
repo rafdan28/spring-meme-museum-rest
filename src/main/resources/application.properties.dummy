@@ -1,6 +1,9 @@
 spring.application.name=spring-meme-museum-rest
 app.author=Raffaele D'Anna
+
 spring.servlet.multipart.enabled=true
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
 
 ##################### Postgres ############################
 
