@@ -3,10 +3,15 @@ package com.springmememuseumrest.service;
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
 import org.openapispec.model.RegisterRequest;
+import org.openapispec.model.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -72,5 +77,28 @@ public class UserServiceImplementation implements UserService {
         } else {
             throw new UnauthorizedException("Credenziali non valide");
         }
+    }
+
+    @Override
+    public ResponseEntity<UserResponse> getUserData() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
+
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setName(user.getName());
+        response.setSurname(user.getSurname());
+        response.setEmail(user.getEmail());
+        response.setUsername(user.getUsername());
+        response.setRoles(user.getRoles());
+
+        return ResponseEntity.ok(response);
     }
 }
