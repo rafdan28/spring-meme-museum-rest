@@ -6,7 +6,6 @@ import org.openapispec.model.LoginRequest;
 import org.openapispec.model.RegisterRequest;
 import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
