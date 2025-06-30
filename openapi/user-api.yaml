@@ -15,20 +15,14 @@ paths:
             schema:
               $ref: "#/components/schemas/RegisterRequest"
       responses:
-        "201":
+        "200":
           description: Utente registrato con successo
           content:
             application/json:
               schema:
-                type: string
-                example: "Utente registrato con successo"
-        "409":
+                $ref: "#/components/schemas/RegisterResponse"
+        "401":
           description: Username e/o Email già esistenti
-          content:
-            application/json:
-              schema:
-                type: string
-                example: "Username e/o Email già esistenti"
 
   /api/users/login:
     post:
@@ -92,6 +86,13 @@ components:
         password:
           type: string
           format: password
+
+    RegisterResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
 
     LoginRequest:
       type: object

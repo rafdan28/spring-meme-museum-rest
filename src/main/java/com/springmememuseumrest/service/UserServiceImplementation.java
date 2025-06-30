@@ -3,6 +3,7 @@ package com.springmememuseumrest.service;
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
 import org.openapispec.model.RegisterRequest;
+import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,9 +48,9 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public boolean usersRegister(RegisterRequest registerRequest) {
+    public ResponseEntity<RegisterResponse> usersRegister(RegisterRequest registerRequest) {
         if (userRepository.existsByUsername(registerRequest.getUsername()) || userRepository.existsByEmail(registerRequest.getEmail())) {
-            return false;
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
         User user = userMapper.toModel(registerRequest);
@@ -57,7 +58,10 @@ public class UserServiceImplementation implements UserService {
         
         userRepository.save(user);
 
-        return true;
+        RegisterResponse registerResponse = new RegisterResponse();
+        registerResponse.setMessage("Utente registrato con successo");
+
+        return ResponseEntity.ok(registerResponse);
     }
 
     @Override
@@ -91,14 +95,14 @@ public class UserServiceImplementation implements UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
 
-        UserResponse response = new UserResponse();
-        response.setId(user.getId());
-        response.setName(user.getName());
-        response.setSurname(user.getSurname());
-        response.setEmail(user.getEmail());
-        response.setUsername(user.getUsername());
-        response.setRoles(user.getRoles());
+        UserResponse userResponse = new UserResponse();
+        userResponse.setId(user.getId());
+        userResponse.setName(user.getName());
+        userResponse.setSurname(user.getSurname());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setUsername(user.getUsername());
+        userResponse.setRoles(user.getRoles());
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userResponse);
     }
 }

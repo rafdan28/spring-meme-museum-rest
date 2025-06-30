@@ -4,6 +4,7 @@ import org.openapispec.api.UserApi;
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
 import org.openapispec.model.RegisterRequest;
+import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +28,8 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<String> apiUsersRegisterPost(RegisterRequest registerRequest) {
-        if (userService.usersRegister(registerRequest)) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("Utente registrato con successo");
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username e/o Email già esistenti");
-        }
+    public ResponseEntity<RegisterResponse> apiUsersRegisterPost(RegisterRequest registerRequest) {
+        return userService.usersRegister(registerRequest);
     }
 
     @Override
