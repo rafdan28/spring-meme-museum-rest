@@ -24,9 +24,9 @@ public class ImageStorageService{
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public String uploadImage(MultipartFile image) throws IOException {
+    public String uploadImage(MultipartFile image, String type) throws IOException {
         String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
-        String fullPath = uploadPath + filename;
+        String fullPath = uploadPath + type + filename;
         String uploadUrl = filerUrl + fullPath;
 
         HttpHeaders headers = new HttpHeaders();

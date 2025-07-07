@@ -8,6 +8,7 @@ import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.springmememuseumrest.service.UserService;
 
@@ -16,18 +17,24 @@ public class UserController implements UserApi {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserController(
+        UserService userService
+    ) {
         this.userService = userService;
     }
 
     @Override
-    public ResponseEntity<JwtResponse> apiUsersLoginPost(LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponse> apiUsersLoginPost(
+        LoginRequest loginRequest
+    ) {
         JwtResponse jwt = userService.userslogin(loginRequest);
         return ResponseEntity.ok(jwt);
     }
 
     @Override
-    public ResponseEntity<RegisterResponse> apiUsersRegisterPost(RegisterRequest registerRequest) {
+    public ResponseEntity<RegisterResponse> apiUsersRegisterPost(
+        RegisterRequest registerRequest
+    ) {
         return userService.usersRegister(registerRequest);
     }
 
@@ -35,4 +42,14 @@ public class UserController implements UserApi {
     public ResponseEntity<UserResponse> apiUsersUserGet() {
         return userService.getUserData();
     } 
+
+    @Override
+    public ResponseEntity<UserResponse> apiUsersUserPatch(
+            String name,
+            String surname,
+            String email,
+            MultipartFile image
+    ) {
+        return userService.updateUserData(name, surname, email, image);
+    }
 }

@@ -114,7 +114,7 @@ public class MemeServiceImplementation implements MemeService {
 
         String imageUrl = null;
         try {
-            imageUrl = imageStorageService.uploadImage(image);
+            imageUrl = imageStorageService.uploadImage(image, "memes/");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();       
         }

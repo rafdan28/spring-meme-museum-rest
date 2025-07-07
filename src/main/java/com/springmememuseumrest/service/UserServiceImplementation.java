@@ -1,5 +1,7 @@
 package com.springmememuseumrest.service;
 
+import java.io.IOException;
+
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
 import org.openapispec.model.RegisterRequest;
@@ -15,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.springmememuseumrest.config.JwtConfig;
 import com.springmememuseumrest.config.exception.UnauthorizedException;
@@ -27,6 +30,7 @@ public class UserServiceImplementation implements UserService {
 
     private AuthenticationManager authenticationManager;
     private UserRepository userRepository;
+    private ImageStorageService imageStorageService;
     private PasswordEncoder passwordEncoder;
     private JwtConfig jwtConfig;
     private UserMapper userMapper;
@@ -36,12 +40,14 @@ public class UserServiceImplementation implements UserService {
     public UserServiceImplementation(
         AuthenticationManager authenticationManager,
         UserRepository userRepository, 
+        ImageStorageService imageStorageService,
         PasswordEncoder passwordEncoder, 
         JwtConfig jwtConfig, 
         UserMapper userMapper
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
+        this.imageStorageService = imageStorageService;
         this.passwordEncoder = passwordEncoder;
         this.jwtConfig = jwtConfig;
         this.userMapper = userMapper;
@@ -102,7 +108,47 @@ public class UserServiceImplementation implements UserService {
         userResponse.setEmail(user.getEmail());
         userResponse.setUsername(user.getUsername());
         userResponse.setRoles(user.getRoles());
+        userResponse.setImageProfileUrl(user.getImageProfileUrl());
 
         return ResponseEntity.ok(userResponse);
+    }
+
+    @Override
+    public ResponseEntity<UserResponse> updateUserData(
+        String name,
+        String surname,
+        String email,
+        MultipartFile image
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
+
+        if (name != null) user.setName(name);
+        if (surname != null) user.setSurname(surname);
+        if (email != null) user.setEmail(email);
+
+        // Gestione immagine se fornita
+        String imageUrl = null;
+        try {
+            imageUrl = imageStorageService.uploadImage(image, "users/");
+            user.setImageProfileUrl(imageUrl);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();       
+        }
+
+        userRepository.save(user);
+
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setName(user.getName());
+        response.setSurname(user.getSurname());
+        response.setEmail(user.getEmail());
+        response.setUsername(user.getUsername());
+        response.setRoles(user.getRoles());
+        response.setImageProfileUrl(user.getImageProfileUrl());
+
+    return ResponseEntity.ok(response);
     }
 }

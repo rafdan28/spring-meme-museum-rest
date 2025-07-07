@@ -47,6 +47,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    private String imageProfileUrl;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
