@@ -4,28 +4,34 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.openapispec.model.ApiMemesIdVotePostRequest;
 import org.openapispec.model.MemeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.springmememuseumrest.mapper.MemeMapper;
 import com.springmememuseumrest.model.Meme;
 import com.springmememuseumrest.model.Tag;
 import com.springmememuseumrest.model.User;
+import com.springmememuseumrest.model.Vote;
 import com.springmememuseumrest.repository.MemeRepository;
 import com.springmememuseumrest.repository.TagRepository;
 import com.springmememuseumrest.repository.UserRepository;
+import com.springmememuseumrest.repository.VoteRepository;
 
 @Service
 public class MemeServiceImplementation implements MemeService {
@@ -33,22 +39,25 @@ public class MemeServiceImplementation implements MemeService {
     private MemeRepository memeRepository;
     private UserRepository userRepository;
     private TagRepository tagRepository;
+    private VoteRepository voteRepository;
     private MemeMapper memeMapper;
     private ImageStorageService imageStorageService;
 
     @Autowired
     public MemeServiceImplementation(
         MemeRepository memeRepository, 
-        MemeMapper memeMapper, 
         UserRepository userRepository, 
-        ImageStorageService imageStorageService,
-        TagRepository tagRepository     
+        TagRepository tagRepository, 
+        VoteRepository voteRepository,
+        MemeMapper memeMapper, 
+        ImageStorageService imageStorageService
     ) {
         this.memeRepository = memeRepository;
-        this.memeMapper = memeMapper;
         this.userRepository = userRepository;
-        this.imageStorageService = imageStorageService;
         this.tagRepository = tagRepository;
+        this.voteRepository = voteRepository;
+        this.memeMapper = memeMapper;
+        this.imageStorageService = imageStorageService;
     }
 
     @Override
@@ -65,9 +74,21 @@ public class MemeServiceImplementation implements MemeService {
             ? memeRepository.findDistinctByTags_NameIn(tags, pageable)
             : memeRepository.findAll(pageable);
 
+        // Recupera utente autenticato
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User currentUser; // dichiarata final
+
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
+        } else {
+            currentUser = null;
+        }
+
+        // Mappa i risultati includendo il voto dell'utente
         List<MemeResponse> result = memePage.stream()
-                .map(memeMapper::toModel)
-                .collect(Collectors.toList()); 
+                .map(meme -> memeMapper.toModel(meme, currentUser))
+                .collect(Collectors.toList());
 
         if ("upvotes".equalsIgnoreCase(sort)) {
             result.sort(Comparator.comparingInt(MemeResponse::getUpvotes));
@@ -112,6 +133,64 @@ public class MemeServiceImplementation implements MemeService {
         memeRepository.save(meme);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();                        
+    }
+
+    @Override
+    public ResponseEntity<Void> setVote(Integer id, ApiMemesIdVotePostRequest voteRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
+
+        Meme meme = memeRepository.findById(id.longValue())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meme non trovato"));
+
+        Vote.VoteType newVoteType = voteRequest.getValue().getValue() == 1 
+            ? Vote.VoteType.UPVOTE 
+            : Vote.VoteType.DOWNVOTE;
+
+        Optional<Vote> existingVoteOpt = voteRepository.findByUserAndMeme(user, meme);
+
+        if (existingVoteOpt.isPresent()) {
+            Vote existingVote = existingVoteOpt.get();
+            if (existingVote.getType() == newVoteType) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            } else {
+                existingVote.setType(newVoteType);
+                voteRepository.save(existingVote);
+                return ResponseEntity.ok().build();
+            }
+        }
+
+        Vote vote = new Vote();
+        vote.setUser(user);
+        vote.setMeme(meme);
+        vote.setType(newVoteType);
+        voteRepository.save(vote);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteVote(
+        Integer id
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
+
+        Meme meme = memeRepository.findById(id.longValue())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meme non trovato"));
+
+        Vote vote = voteRepository.findByUserAndMeme(user, meme)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voto non trovato"));
+
+        voteRepository.delete(vote);
+
+        return ResponseEntity.noContent().build();
     }
     
 }

@@ -2,6 +2,7 @@ package com.springmememuseumrest.service;
 
 import java.util.List;
 
+import org.openapispec.model.ApiMemesIdVotePostRequest;
 import org.openapispec.model.MemeResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,5 +21,12 @@ public interface MemeService {
         String title,
         List<String> tags, 
         MultipartFile image
+    );
+    public ResponseEntity<Void> setVote(
+        Integer id, 
+        ApiMemesIdVotePostRequest voteRequest
+    );
+    public ResponseEntity<Void> deleteVote(
+        Integer id
     );
 }

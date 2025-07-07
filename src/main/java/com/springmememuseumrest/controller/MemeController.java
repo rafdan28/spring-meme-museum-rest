@@ -3,6 +3,7 @@ package com.springmememuseumrest.controller;
 import java.util.List;
 
 import org.openapispec.api.MemeApi;
+import org.openapispec.model.ApiMemesIdVotePostRequest;
 import org.openapispec.model.MemeResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,10 +35,25 @@ public class MemeController implements MemeApi {
     
     @Override
     public ResponseEntity<Void> apiMemesPost(
-            @RequestParam("title") String title,
-            @RequestParam("tags") List<String> tags,
-            @RequestPart("image") MultipartFile image
+        @RequestParam("title") String title,
+        @RequestParam("tags") List<String> tags,
+        @RequestPart("image") MultipartFile image
     ) {
         return memeService.uploadMeme(title, tags, image);
+    }
+
+    @Override
+    public ResponseEntity<Void> apiMemesIdVotePost(
+        Integer id, 
+        ApiMemesIdVotePostRequest voteRequest
+    ) {
+        return memeService.setVote(id, voteRequest);
+    }
+
+    @Override
+    public ResponseEntity<Void> apiMemesIdVoteDelete(
+        Integer id
+    ) {
+        return memeService.deleteVote(id);
     }
 }
