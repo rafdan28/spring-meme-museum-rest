@@ -28,11 +28,11 @@ paths:
                   type: string
                   format: binary
       responses:
-        '201':
+        "201":
           description: Meme caricato
-        '400':
+        "400":
           description: Dati non validi
-        '401':
+        "401":
           description: Non autorizzato
 
     get:
@@ -69,14 +69,14 @@ paths:
             type: integer
             default: 10
       responses:
-        '200':
+        "200":
           description: Lista di meme
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MemeResponse'
+                  $ref: "#/components/schemas/MemeResponse"
 
   /api/memes/daily:
     get:
@@ -84,12 +84,12 @@ paths:
         - Meme
       summary: Meme del giorno
       responses:
-        '200':
+        "200":
           description: Meme del giorno
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MemeResponse'
+                $ref: "#/components/schemas/MemeResponse"
 
   /api/memes/{id}:
     get:
@@ -103,13 +103,13 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Dettagli del meme
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MemeResponse'
-        '404':
+                $ref: "#/components/schemas/MemeResponse"
+        "404":
           description: Meme non trovato
 
     delete:
@@ -125,13 +125,13 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        "204":
           description: Cancellato con successo
-        '403':
+        "403":
           description: Accesso negato
-        '404':
+        "404":
           description: Meme non trovato
-          
+
   /api/memes/{id}/vote:
     post:
       tags:
@@ -158,13 +158,13 @@ paths:
                   enum: [1, -1]
                   description: 1 = upvote, -1 = downvote
       responses:
-        '200':
+        "200":
           description: Voto registrato
-        '401':
+        "401":
           description: Non autorizzato
-        '409':
+        "409":
           description: Voto già registrato per questo meme
-    
+
     delete:
       tags:
         - Meme
@@ -178,11 +178,11 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        "204":
           description: Voto eliminato
-        '401':
+        "401":
           description: Non autorizzato
-        '404':
+        "404":
           description: Voto non trovato
 
   /api/memes/{id}/comments:
@@ -197,14 +197,14 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Lista commenti
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CommentResponse'
+                  $ref: "#/components/schemas/CommentResponse"
 
     post:
       tags:
@@ -223,13 +223,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentRequest'
+              $ref: "#/components/schemas/CommentRequest"
       responses:
-        '201':
+        "201":
           description: Commento creato
-        '401':
+        "401":
           description: Non autorizzato
-  
+
   /api/memes/{id}/comments/{commentId}:
     delete:
       tags:
@@ -249,13 +249,13 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        "204":
           description: Commento eliminato
-        '403':
+        "403":
           description: Non autorizzato a eliminare questo commento
-        '404':
+        "404":
           description: Commento non trovato
-          
+
 components:
   securitySchemes:
     bearerAuth:
@@ -286,7 +286,9 @@ components:
           type: integer
         downvotes:
           type: integer
-          
+        userVote:
+          type: integer
+
     CommentRequest:
       type: object
       required: [content]
