@@ -288,6 +288,7 @@ components:
           type: integer
         userVote:
           type: integer
+          nullable: true
 
     CommentRequest:
       type: object
