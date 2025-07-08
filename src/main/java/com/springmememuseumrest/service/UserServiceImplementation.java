@@ -130,12 +130,20 @@ public class UserServiceImplementation implements UserService {
         if (email != null) user.setEmail(email);
 
         // Gestione immagine se fornita
-        String imageUrl = null;
-        try {
-            imageUrl = imageStorageService.uploadImage(image, "users/");
-            user.setImageProfileUrl(imageUrl);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();       
+        if (image != null && !image.isEmpty()) {
+            try {
+                // Rimuovi vecchia immagine se esiste
+                String oldImagePath = user.getImageProfileUrl();
+                if (oldImagePath != null && !oldImagePath.isBlank()) {
+                    imageStorageService.deleteImage(oldImagePath);
+                }
+
+                // Carica nuova immagine
+                String imageUrl = imageStorageService.uploadImage(image, "users/");
+                user.setImageProfileUrl(imageUrl);
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
         }
 
         userRepository.save(user);
