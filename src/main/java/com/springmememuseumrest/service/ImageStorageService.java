@@ -45,4 +45,19 @@ public class ImageStorageService{
 
         return fullPath; // questo path verrà poi salvato nell'entità Meme
     }
+
+    public void deleteImage(String fullPath) throws IOException {
+        String deleteUrl = filerUrl + fullPath;
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            deleteUrl,
+            HttpMethod.DELETE,
+            null,
+            String.class
+        );
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new IOException("Failed to delete image: " + response.getStatusCode());
+        }
+    }
 }
