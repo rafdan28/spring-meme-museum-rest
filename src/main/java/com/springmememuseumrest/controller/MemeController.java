@@ -72,4 +72,9 @@ public class MemeController implements MemeApi {
         List<VoteResponse> votes = voteService.getVotesForMeme(id.longValue());
         return ResponseEntity.ok(votes);
     }
+
+    @Override
+    public ResponseEntity<MemeResponse> apiMemesIdGet(Integer id) {
+        return memeService.getMemeById(id);
+    }
 }

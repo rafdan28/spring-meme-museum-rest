@@ -29,4 +29,7 @@ public interface MemeService {
     public ResponseEntity<Void> deleteVote(
         Integer id
     );
+    public ResponseEntity<MemeResponse> getMemeById(
+        Integer id
+    );
 }

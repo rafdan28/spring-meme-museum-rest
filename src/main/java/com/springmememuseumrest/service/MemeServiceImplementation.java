@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.springmememuseumrest.config.exception.ResourceNotFoundException;
 import com.springmememuseumrest.mapper.MemeMapper;
 import com.springmememuseumrest.model.Meme;
 import com.springmememuseumrest.model.Tag;
@@ -76,7 +77,7 @@ public class MemeServiceImplementation implements MemeService {
 
         // Recupera utente autenticato
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final User currentUser; // dichiarata final
+        final User currentUser;
 
         if (authentication != null && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -183,14 +184,35 @@ public class MemeServiceImplementation implements MemeService {
             .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
 
         Meme meme = memeRepository.findById(id.longValue())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meme non trovato"));
+            .orElseThrow(() -> new ResourceNotFoundException("Meme non trovato"));
 
         Vote vote = voteRepository.findByUserAndMeme(user, meme)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voto non trovato"));
+            .orElseThrow(() -> new ResourceNotFoundException("Voto non trovato"));
 
         voteRepository.delete(vote);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<MemeResponse> getMemeById(Integer id) {
+       Meme meme = memeRepository.findById(id.longValue())
+            .orElseThrow(() -> new ResourceNotFoundException("Meme non trovato"));
+
+        // Recupera utente autenticato
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User currentUser;
+
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
+        } else {
+            currentUser = null;
+        }
+       
+       MemeResponse response = memeMapper.toModel(meme, currentUser);
+       
+       return ResponseEntity.ok(response);
     }
     
 }
