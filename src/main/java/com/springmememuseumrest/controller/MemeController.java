@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.openapispec.api.MemeApi;
 import org.openapispec.model.ApiMemesIdVotePostRequest;
+import org.openapispec.model.CommentRequest;
+import org.openapispec.model.CommentResponse;
 import org.openapispec.model.MemeResponse;
 import org.openapispec.model.VoteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +17,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.springmememuseumrest.config.exception.ResourceNotFoundException;
-import com.springmememuseumrest.model.Meme;
+import com.springmememuseumrest.service.CommentService;
 import com.springmememuseumrest.service.MemeService;
 import com.springmememuseumrest.service.VoteService;
 
@@ -25,14 +26,17 @@ public class MemeController implements MemeApi {
     
     private MemeService memeService;
     private VoteService voteService;
+    private CommentService commentService;
 
     @Autowired
     public MemeController(
         MemeService memeService, 
-        VoteService voteService
+        VoteService voteService,
+        CommentService commentService
     ) {
         this.memeService = memeService;
         this.voteService = voteService;
+        this.commentService = commentService;
     }
 
     @Override
@@ -91,5 +95,33 @@ public class MemeController implements MemeApi {
         Integer id
     ) {
         return memeService.deleteMemeById(id);
+    }
+
+    @Override
+    public ResponseEntity<List<CommentResponse>> apiMemesIdCommentGet(
+        Integer id
+    ) {
+        List<CommentResponse> comments = commentService.getCommentsForMeme(id.longValue());
+        return ResponseEntity.ok(comments);
+    }
+
+    @Override
+    public ResponseEntity<Void> apiMemesIdCommentPost(
+        Integer id, 
+        CommentRequest request
+    ) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        commentService.addComment(id.longValue(), request.getContent(), username);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Override
+    public ResponseEntity<Void> apiMemesIdCommentCommentIdDelete(
+        Integer id, 
+        Integer commentId
+    ) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        commentService.deleteComment(id.longValue(), commentId.longValue(), username);
+        return ResponseEntity.noContent().build();
     }
 }
