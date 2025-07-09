@@ -28,6 +28,7 @@ public interface MemeMapper {
     @Mapping(target = "createdAt", expression = "java(toRomeOffset(meme.getCreatedAt()))")
     @Mapping(target = "upvotes", expression = "java(countUpvotes(meme))")
     @Mapping(target = "downvotes", expression = "java(countDownvotes(meme))")
+    @Mapping(target = "comments", expression = "java(countComments(meme))")
     @Mapping(target = "userVote", expression = "java(resolveUserVote(meme, currentUser))")
     MemeResponse toModel(Meme meme, @Nullable User currentUser);
 
@@ -44,6 +45,11 @@ public interface MemeMapper {
     default int countDownvotes(Meme meme) {
         return (int) meme.getVotes().stream()
             .filter(v -> v.getType() == Vote.VoteType.DOWNVOTE)
+            .count();
+    }
+
+    default int countComments(Meme meme) {
+        return (int) meme.getComments().stream()
             .count();
     }
 

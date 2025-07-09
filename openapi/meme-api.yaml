@@ -312,6 +312,8 @@ components:
           type: integer
         downvotes:
           type: integer
+        comments:
+          type: integer
         userVote:
           type: integer
           nullable: true
