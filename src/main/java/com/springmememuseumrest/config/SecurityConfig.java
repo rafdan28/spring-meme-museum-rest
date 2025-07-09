@@ -41,7 +41,7 @@ public class SecurityConfig {
                     "/api/memes", // solo GET su /api/memes è pubblico
                     "/api/memes/daily",
                     "/api/memes/{id:[\\d]+}",
-                    "/api/memes/{id:[\\d]+}/comments",
+                    "/api/memes/{id:[\\d]+}/comment",
                     "/api/tags/**"
                 ).permitAll()
                 .anyRequest().authenticated()
