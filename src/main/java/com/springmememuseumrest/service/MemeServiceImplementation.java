@@ -214,5 +214,27 @@ public class MemeServiceImplementation implements MemeService {
        
        return ResponseEntity.ok(response);
     }
+
+    @Override
+    public ResponseEntity<Void> deleteMemeById(Integer id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Meme meme = memeRepository.findById(id.longValue())
+            .orElseThrow(() -> new ResourceNotFoundException("Meme non trovato"));
+
+        if (!meme.getAuthor().getUsername().equals(username)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            imageStorageService.deleteImage(meme.getImageUrl());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        memeRepository.delete(meme);
+        return ResponseEntity.noContent().build();
+    }
     
 }

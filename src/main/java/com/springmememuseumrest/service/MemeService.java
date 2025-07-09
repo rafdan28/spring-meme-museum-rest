@@ -32,4 +32,7 @@ public interface MemeService {
     public ResponseEntity<MemeResponse> getMemeById(
         Integer id
     );
+    public ResponseEntity<Void> deleteMemeById(
+        Integer id
+    );
 }

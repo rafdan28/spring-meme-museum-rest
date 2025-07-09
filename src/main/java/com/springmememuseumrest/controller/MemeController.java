@@ -7,12 +7,16 @@ import org.openapispec.model.ApiMemesIdVotePostRequest;
 import org.openapispec.model.MemeResponse;
 import org.openapispec.model.VoteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.springmememuseumrest.config.exception.ResourceNotFoundException;
+import com.springmememuseumrest.model.Meme;
 import com.springmememuseumrest.service.MemeService;
 import com.springmememuseumrest.service.VoteService;
 
@@ -68,13 +72,24 @@ public class MemeController implements MemeApi {
     }
 
     @Override
-    public ResponseEntity<List<VoteResponse>> apiMemesIdVoteGet(Integer id) {
+    public ResponseEntity<List<VoteResponse>> apiMemesIdVoteGet(
+        Integer id
+    ) {
         List<VoteResponse> votes = voteService.getVotesForMeme(id.longValue());
         return ResponseEntity.ok(votes);
     }
 
     @Override
-    public ResponseEntity<MemeResponse> apiMemesIdGet(Integer id) {
+    public ResponseEntity<MemeResponse> apiMemesIdGet(
+        Integer id
+    ) {
         return memeService.getMemeById(id);
+    }
+
+    @Override
+    public ResponseEntity<Void> apiMemesIdDelete(
+        Integer id
+    ) {
+        return memeService.deleteMemeById(id);
     }
 }
