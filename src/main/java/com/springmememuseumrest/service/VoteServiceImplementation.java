@@ -1,7 +1,6 @@
 package com.springmememuseumrest.service;
 
 import com.springmememuseumrest.config.exception.ResourceNotFoundException;
-import com.springmememuseumrest.mapper.MemeMapper;
 import com.springmememuseumrest.mapper.VoteMapper;
 import com.springmememuseumrest.model.Meme;
 import com.springmememuseumrest.model.Vote;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.openapispec.model.VoteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
