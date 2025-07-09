@@ -348,6 +348,8 @@ components:
           type: string
         author:
           type: string
+        authorImageUrl:
+          type: string
         createdAt:
           type: string
           format: date-time

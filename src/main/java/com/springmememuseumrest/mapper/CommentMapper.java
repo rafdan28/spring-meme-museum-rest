@@ -9,6 +9,7 @@ import com.springmememuseumrest.model.Comment;
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
     @Mapping(target = "author", expression = "java(comment.getAuthor().getUsername())")
+    @Mapping(target = "authorImageUrl", expression = "java(comment.getAuthor().getImageProfileUrl())")
     @Mapping(target = "createdAt", expression = "java(comment.getCreatedAt().atOffset(java.time.ZoneOffset.UTC))")
     CommentResponse toDto(Comment comment);
 }
