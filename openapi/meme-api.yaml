@@ -156,7 +156,7 @@ paths:
                 value:
                   type: integer
                   enum: [1, -1]
-                  description: 1 = upvote, -1 = downvote
+                  description: 1 = UPVOTE, -1 = DOWNVOTE
       responses:
         "200":
           description: Voto registrato
@@ -185,7 +185,33 @@ paths:
         "404":
           description: Voto non trovato
 
-  /api/memes/{id}/comments:
+    get:
+      tags:
+        - Meme
+      summary: Ottiene tutti i voti di un meme con autore
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lista voti
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VoteResponse"
+        "401":
+          description: Non autorizzato
+        "404":
+          description: Meme non trovato
+
+  /api/memes/{id}/comment:
     get:
       tags:
         - Meme
@@ -230,7 +256,7 @@ paths:
         "401":
           description: Non autorizzato
 
-  /api/memes/{id}/comments/{commentId}:
+  /api/memes/{id}/comment/{commentId}:
     delete:
       tags:
         - Meme
@@ -290,13 +316,26 @@ components:
           type: integer
           nullable: true
 
+    VoteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: integer
+          description: 1 = UPVOTE, -1 = DOWNVOTE
+        author:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
     CommentRequest:
       type: object
       required: [content]
       properties:
         content:
           type: string
-          example: "Questo meme è fantastico!"
 
     CommentResponse:
       type: object

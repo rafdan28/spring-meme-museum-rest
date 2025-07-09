@@ -5,6 +5,8 @@ import java.util.List;
 import org.openapispec.api.MemeApi;
 import org.openapispec.model.ApiMemesIdVotePostRequest;
 import org.openapispec.model.MemeResponse;
+import org.openapispec.model.VoteResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -12,13 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.springmememuseumrest.service.MemeService;
+import com.springmememuseumrest.service.VoteService;
 
 @RestController
 public class MemeController implements MemeApi {
-    private final MemeService memeService;
+    
+    private MemeService memeService;
+    private VoteService voteService;
 
-    public MemeController(MemeService memeService) {
+    @Autowired
+    public MemeController(
+        MemeService memeService, 
+        VoteService voteService
+    ) {
         this.memeService = memeService;
+        this.voteService = voteService;
     }
 
     @Override
@@ -55,5 +65,11 @@ public class MemeController implements MemeApi {
         Integer id
     ) {
         return memeService.deleteVote(id);
+    }
+
+    @Override
+    public ResponseEntity<List<VoteResponse>> apiMemesIdVoteGet(Integer id) {
+        List<VoteResponse> votes = voteService.getVotesForMeme(id.longValue());
+        return ResponseEntity.ok(votes);
     }
 }
