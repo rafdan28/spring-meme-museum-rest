@@ -6,6 +6,7 @@ import org.openapispec.model.LoginRequest;
 import org.openapispec.model.RegisterRequest;
 import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,8 +16,9 @@ import com.springmememuseumrest.service.UserService;
 @RestController
 public class UserController implements UserApi {
 
-    private final UserService userService;
+    private UserService userService;
 
+    @Autowired
     public UserController(
         UserService userService
     ) {
