@@ -25,6 +25,7 @@ public interface MemeMapper {
     @Mapping(target = "id", source = "meme.id")
     @Mapping(target = "tags", expression = "java(toTagNames(meme.getTags()))")
     @Mapping(target = "author", expression = "java(meme.getAuthor().getUsername())")
+    @Mapping(target = "authorImageUrl", expression = "java(meme.getAuthor().getImageProfileUrl())")
     @Mapping(target = "createdAt", expression = "java(toRomeOffset(meme.getCreatedAt()))")
     @Mapping(target = "upvotes", expression = "java(countUpvotes(meme))")
     @Mapping(target = "downvotes", expression = "java(countDownvotes(meme))")

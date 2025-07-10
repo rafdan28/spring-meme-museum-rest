@@ -11,6 +11,7 @@ public interface VoteMapper {
 
     @Mapping(target = "type", expression = "java(mapVoteType(vote.getType()))")
     @Mapping(target = "author", source = "user.username")
+    @Mapping(target = "authorImageUrl", expression = "java(vote.getUser().getImageProfileUrl())")
     @Mapping(target = "createdAt", expression = "java(vote.getCreatedAt().atOffset(java.time.ZoneOffset.UTC))")
     VoteResponse toDto(Vote vote);
 

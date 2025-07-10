@@ -305,6 +305,8 @@ components:
             type: string
         author:
           type: string
+        authorImageUrl:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -327,6 +329,8 @@ components:
           type: integer
           description: 1 = UPVOTE, -1 = DOWNVOTE
         author:
+          type: string
+        authorImageUrl:
           type: string
         createdAt:
           type: string
