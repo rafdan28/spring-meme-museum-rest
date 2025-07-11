@@ -2,6 +2,7 @@ package com.springmememuseumrest.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -32,18 +33,30 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/", "/index.html", "/css/**", 
-                    "/v3/api-docs/**", 
-                    "/swagger-ui.html", "/swagger-ui/**",
-                    "/api/users/login", 
-                    "/api/users/register",
-                    "/api/memes", // solo GET su /api/memes è pubblico
-                    "/api/memes/daily",
-                    "/api/memes/{id:[\\d]+}",
-                    "/api/memes/{id:[\\d]+}/comment",
-                    "/api/tags/**"
-                ).permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/memes/{id:[\\d]+}").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/memes/{id:[\\d]+}/vote").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/memes/{id:[\\d]+}/comment").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/memes").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/memes/daily").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/tags/**").permitAll()
+                .requestMatchers("/", "/index.html", "/css/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html", "/swagger-ui/**",
+                                "/api/users/login",
+                                "/api/users/register").permitAll()
+                // .requestMatchers(
+                //     "/", "/index.html", "/css/**", 
+                //     "/v3/api-docs/**", 
+                //     "/swagger-ui.html", "/swagger-ui/**",
+                //     "/api/users/login", 
+                //     "/api/users/register",
+                //     "/api/memes", // solo GET su /api/memes è pubblico
+                //     "/api/memes/daily",
+                //     "/api/memes/{id:[\\d]+}",
+                //     "/api/memes/{id:[\\d]+}/comment",
+                //     "/api/memes/{id:[\\d]+}/vote",
+                //     "/api/tags/**"
+                // ).permitAll()
                 .anyRequest().authenticated()
             )
             // Stateless session (required for JWT)
