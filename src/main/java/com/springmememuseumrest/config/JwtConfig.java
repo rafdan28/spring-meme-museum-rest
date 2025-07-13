@@ -44,7 +44,7 @@ public class JwtConfig {
         claims.put("name", user.getName());
         claims.put("surname", user.getSurname());
         claims.put("email", user.getEmail());
-        claims.put("imageProfileUrl", user.getImageProfileUrl());
+        claims.put("imageProfileUrl", user.getImageProfileUrl() == null ? "" : user.getImageProfileUrl() );
         claims.put("role", user.getRoles());
 
         return Jwts.builder()
