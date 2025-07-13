@@ -1,13 +1,16 @@
 package com.springmememuseumrest.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-import com.springmememuseumrest.model.Meme;
+import org.openapispec.model.MemeResponse;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 @Service
 public interface DailyMemeService {
-    Meme getMemeOfToday();
-    Page<Meme> getDailyMemeHistory(Pageable pageable);
+    ResponseEntity<MemeResponse> getMemeOfToday();
+    ResponseEntity<List<MemeResponse>> getDailyMemeHistory(
+        Pageable pageable
+    );
 }

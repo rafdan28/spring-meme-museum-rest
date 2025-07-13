@@ -6,21 +6,30 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.openapispec.model.MemeResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.springmememuseumrest.mapper.DailyMemeMapper;
+import com.springmememuseumrest.mapper.MemeMapper;
 import com.springmememuseumrest.model.DailyMeme;
 import com.springmememuseumrest.model.Meme;
+import com.springmememuseumrest.model.User;
 import com.springmememuseumrest.model.Vote;
 import com.springmememuseumrest.repository.DailyMemeRepository;
 import com.springmememuseumrest.repository.MemeRepository;
+import com.springmememuseumrest.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class DailyMemeServiceImplementation implements DailyMemeService {
 
     private static final double WEIGHT_COMMENT = 2.0;
@@ -28,37 +37,52 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
     private static final double WEIGHT_DOWNVOTES = -1.0;
     private static final double DECAY_HALF_LIFE_DAYS = 30.0;
 
-    private DailyMemeRepository dailyMemeRepository;
-    private MemeRepository memeRepository;
-    private DailyMemeMapper dailyMemeMapper;
-
-    @Autowired
-    public DailyMemeServiceImplementation(
-        DailyMemeRepository dailyMemeRepository,
-        MemeRepository memeRepository, 
-        DailyMemeMapper dailyMemeMapper
-    ) {
-        this.dailyMemeRepository = dailyMemeRepository;
-        this.memeRepository = memeRepository;
-        this.dailyMemeMapper = dailyMemeMapper;
-    }
+    private final DailyMemeRepository dailyMemeRepository;
+    private final MemeRepository memeRepository;
+    private final DailyMemeMapper dailyMemeMapper;
+    private final MemeMapper memeMapper;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
-    public Meme getMemeOfToday() {
+    public ResponseEntity<MemeResponse> getMemeOfToday() {
         LocalDate today = LocalDate.now();
-        return dailyMemeRepository.findByDate(today)
+        Meme memeOfToday = dailyMemeRepository.findByDate(today)
                 .map(dailyMemeMapper::toMeme)
                 .orElseGet(() -> selectAndSaveDailyMeme(today));
+
+        // Recupera utente autenticato
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User currentUser;
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
+        } else {
+            currentUser = null;
+        }  
+
+        return ResponseEntity.ok(memeMapper.toModel(memeOfToday, currentUser));
     }
 
     @Override
-    public Page<Meme> getDailyMemeHistory(Pageable pageable) {
-        return dailyMemeRepository.findAll(pageable).map(dailyMemeMapper::toMeme);
+    public ResponseEntity<List<MemeResponse>> getDailyMemeHistory(Pageable pageable) {
+        Page<Meme> pageObj = dailyMemeRepository.findAll(pageable).map(dailyMemeMapper::toMeme);
+
+        // Recupera utente autenticato
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final User currentUser;
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
+        } else {
+            currentUser = null;
+        }  
+
+        List<MemeResponse> list = pageObj.stream().map(meme -> memeMapper.toModel(meme, currentUser)).toList();
+        return ResponseEntity.ok(list);
     }
 
     private Meme selectAndSaveDailyMeme(LocalDate today) {
-
         LocalDate barrageDate = today.minusDays(30);
         List<Meme> eligibleDailyMeme = memeRepository.findEligibleDailyMeme(barrageDate);
 
