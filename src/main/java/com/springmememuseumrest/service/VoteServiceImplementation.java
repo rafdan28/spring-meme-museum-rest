@@ -9,7 +9,6 @@ import com.springmememuseumrest.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.openapispec.model.VoteResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,20 +18,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class VoteServiceImplementation implements VoteService {
 
-    private VoteRepository voteRepository;
-    private MemeRepository memeRepository;
-    private VoteMapper voteMapper;
-
-    @Autowired
-    public VoteServiceImplementation(
-        VoteRepository voteRepository,
-        MemeRepository memeRepository,
-        VoteMapper voteMapper
-    ){
-        this.voteRepository = voteRepository;
-        this.memeRepository = memeRepository;  
-        this.voteMapper = voteMapper;  
-    }
+    private final VoteRepository voteRepository;
+    private final MemeRepository memeRepository;
+    private final VoteMapper voteMapper;
 
     @Override
     public List<VoteResponse> getVotesForMeme(Long memeId) {

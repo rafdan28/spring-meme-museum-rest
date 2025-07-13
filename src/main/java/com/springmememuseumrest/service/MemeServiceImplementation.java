@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.openapispec.model.ApiMemesIdVotePostRequest;
 import org.openapispec.model.MemeResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -34,32 +33,18 @@ import com.springmememuseumrest.repository.TagRepository;
 import com.springmememuseumrest.repository.UserRepository;
 import com.springmememuseumrest.repository.VoteRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class MemeServiceImplementation implements MemeService {
 
-    private MemeRepository memeRepository;
-    private UserRepository userRepository;
-    private TagRepository tagRepository;
-    private VoteRepository voteRepository;
-    private MemeMapper memeMapper;
-    private ImageStorageService imageStorageService;
-
-    @Autowired
-    public MemeServiceImplementation(
-        MemeRepository memeRepository, 
-        UserRepository userRepository, 
-        TagRepository tagRepository, 
-        VoteRepository voteRepository,
-        MemeMapper memeMapper, 
-        ImageStorageService imageStorageService
-    ) {
-        this.memeRepository = memeRepository;
-        this.userRepository = userRepository;
-        this.tagRepository = tagRepository;
-        this.voteRepository = voteRepository;
-        this.memeMapper = memeMapper;
-        this.imageStorageService = imageStorageService;
-    }
+    private final MemeRepository memeRepository;
+    private final UserRepository userRepository;
+    private final TagRepository tagRepository;
+    private final VoteRepository voteRepository;
+    private final MemeMapper memeMapper;
+    private final ImageStorageService imageStorageService;
 
     @Override
     public List<MemeResponse> getMemeList(List<String> tags, String sort, String order, Integer page, Integer size) {

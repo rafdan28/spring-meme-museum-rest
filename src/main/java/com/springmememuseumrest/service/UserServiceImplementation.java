@@ -7,7 +7,6 @@ import org.openapispec.model.LoginRequest;
 import org.openapispec.model.RegisterRequest;
 import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,33 +24,18 @@ import com.springmememuseumrest.mapper.UserMapper;
 import com.springmememuseumrest.model.User;
 import com.springmememuseumrest.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserServiceImplementation implements UserService {
 
-    private AuthenticationManager authenticationManager;
-    private UserRepository userRepository;
-    private ImageStorageService imageStorageService;
-    private PasswordEncoder passwordEncoder;
-    private JwtConfig jwtConfig;
-    private UserMapper userMapper;
-    
-
-    @Autowired
-    public UserServiceImplementation(
-        AuthenticationManager authenticationManager,
-        UserRepository userRepository, 
-        ImageStorageService imageStorageService,
-        PasswordEncoder passwordEncoder, 
-        JwtConfig jwtConfig, 
-        UserMapper userMapper
-    ) {
-        this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.imageStorageService = imageStorageService;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtConfig = jwtConfig;
-        this.userMapper = userMapper;
-    }
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final ImageStorageService imageStorageService;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtConfig jwtConfig;
+    private final UserMapper userMapper;
 
     @Override
     public ResponseEntity<RegisterResponse> usersRegister(RegisterRequest registerRequest) {

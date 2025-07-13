@@ -3,7 +3,6 @@ package com.springmememuseumrest.service;
 import java.util.List;
 
 import org.openapispec.model.CommentResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -16,28 +15,16 @@ import com.springmememuseumrest.model.User;
 import com.springmememuseumrest.repository.CommentRepository;
 import com.springmememuseumrest.repository.MemeRepository;
 import com.springmememuseumrest.repository.UserRepository;
-import com.springmememuseumrest.repository.VoteRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CommentServiceImplementation implements CommentService {
-    private MemeRepository memeRepository;
-    private CommentRepository commentRepository;
-    private UserRepository userRepository;
-    private CommentMapper commentMapper;
-
-    @Autowired
-    public CommentServiceImplementation(
-        MemeRepository memeRepository, 
-        CommentRepository commentRepository, 
-        UserRepository userRepository, 
-        VoteRepository voteRepository,
-        CommentMapper commentMapper
-    ) {
-        this.memeRepository = memeRepository;
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-        this.commentMapper = commentMapper;
-    }
+    private final MemeRepository memeRepository;
+    private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
+    private final CommentMapper commentMapper;
 
     @Override
     public List<CommentResponse> getCommentsForMeme(Long memeId) {
