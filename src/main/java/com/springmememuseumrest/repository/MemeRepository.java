@@ -1,13 +1,29 @@
 package com.springmememuseumrest.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.springmememuseumrest.model.Meme;
 
 public interface MemeRepository extends JpaRepository<Meme, Long> {
-    Page<Meme> findDistinctByTags_NameIn(List<String> tags, Pageable pageable);
+    Page<Meme> findDistinctByTags_NameIn(
+        List<String> tags, 
+        Pageable pageable
+    );
+    
+    /** Seleziona tutti i meme NON usati negli ultimi 30 giorni */
+    @Query("""
+       SELECT m FROM Meme m
+       WHERE m.lastUsedDate IS NULL
+          OR m.lastUsedDate < :barrageDate
+    """)
+    List<Meme> findEligibleDailyMeme(
+        @Param("barrageDate") LocalDate barrageDate
+    );
 }

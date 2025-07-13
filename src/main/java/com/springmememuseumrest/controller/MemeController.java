@@ -9,6 +9,9 @@ import org.openapispec.model.CommentResponse;
 import org.openapispec.model.MemeResponse;
 import org.openapispec.model.VoteResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.springmememuseumrest.mapper.MemeMapper;
+import com.springmememuseumrest.model.Meme;
 import com.springmememuseumrest.service.CommentService;
+import com.springmememuseumrest.service.DailyMemeService;
 import com.springmememuseumrest.service.MemeService;
 import com.springmememuseumrest.service.VoteService;
 
@@ -27,16 +33,22 @@ public class MemeController implements MemeApi {
     private MemeService memeService;
     private VoteService voteService;
     private CommentService commentService;
+    private DailyMemeService dailyMemeService;
+    private MemeMapper memeMapper;
 
     @Autowired
     public MemeController(
         MemeService memeService, 
         VoteService voteService,
-        CommentService commentService
+        CommentService commentService,
+        DailyMemeService dailyMemeService,
+        MemeMapper memeMapper
     ) {
         this.memeService = memeService;
         this.voteService = voteService;
         this.commentService = commentService;
+        this.dailyMemeService = dailyMemeService;
+        this.memeMapper = memeMapper;
     }
 
     @Override
@@ -123,5 +135,25 @@ public class MemeController implements MemeApi {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         commentService.deleteComment(id.longValue(), commentId.longValue(), username);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<MemeResponse> apiMemesDailyGet() {
+        Meme meme = dailyMemeService.getMemeOfToday();
+        return ResponseEntity.ok(memeMapper.toModel(meme, null));    
+    }
+
+    @Override
+    public ResponseEntity<List<MemeResponse>> apiMemesDailyHistoryGet(Integer page, Integer size) {
+        Page<Meme> pageObj = dailyMemeService.getDailyMemeHistory(
+            PageRequest.of(
+                page != null ? page : 0,
+                size != null ? size : 10,
+                Sort.by("date").descending()
+            )
+        );
+
+        List<MemeResponse> list = pageObj.stream().map(meme -> memeMapper.toModel(meme, null)).toList();
+        return ResponseEntity.ok(list);
     }
 }
