@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/api/memes/{id:[\\d]+}/comment").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/memes").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/memes/daily").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/memes/daily/history").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/tags/**").permitAll()
                 .requestMatchers("/", "/index.html", "/css/**",
                                 "/v3/api-docs/**",
