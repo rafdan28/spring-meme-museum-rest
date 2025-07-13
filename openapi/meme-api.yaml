@@ -93,6 +93,8 @@ paths:
 
   /api/memes/daily/history:
     get:
+      tags:
+        - Meme
       summary: Storico dei meme del giorno
       parameters:
         - in: query
