@@ -13,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.springmememuseumrest.service.CommentService;
 import com.springmememuseumrest.service.DailyMemeService;
 import com.springmememuseumrest.service.MemeService;
+import com.springmememuseumrest.service.UserService;
 import com.springmememuseumrest.service.VoteService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class MemeController implements MemeApi {
     
     private final MemeService memeService;
+    private final UserService userService;
     private final VoteService voteService;
     private final CommentService commentService;
     private final DailyMemeService dailyMemeService;
@@ -106,7 +107,8 @@ public class MemeController implements MemeApi {
         Integer id, 
         CommentRequest request
     ) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        // String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = userService.getCurrentAuthenticatedUser().getUsername();
         commentService.addComment(id.longValue(), request.getContent(), username);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -116,7 +118,8 @@ public class MemeController implements MemeApi {
         Integer id, 
         Integer commentId
     ) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        // String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = userService.getCurrentAuthenticatedUser().getUsername();
         commentService.deleteComment(id.longValue(), commentId.longValue(), username);
         return ResponseEntity.noContent().build();
     }

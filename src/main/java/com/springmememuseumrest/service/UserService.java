@@ -9,8 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.springmememuseumrest.model.User;
+
 @Service
 public interface UserService {
+    User getCurrentAuthenticatedUser();
     ResponseEntity<RegisterResponse> usersRegister(RegisterRequest registerRequest);
     JwtResponse userslogin(
         LoginRequest loginRequest

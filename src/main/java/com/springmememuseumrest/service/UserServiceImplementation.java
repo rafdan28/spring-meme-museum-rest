@@ -9,6 +9,7 @@ import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,6 +37,21 @@ public class UserServiceImplementation implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtConfig jwtConfig;
     private final UserMapper userMapper;
+
+    @Override
+    public User getCurrentAuthenticatedUser() {
+        final User currentUser;
+
+        // Recupera utente autenticato
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
+        } else {
+            currentUser = null;
+        }
+        return currentUser;
+    }
 
     @Override
     public ResponseEntity<RegisterResponse> usersRegister(RegisterRequest registerRequest) {

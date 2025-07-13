@@ -10,9 +10,6 @@ import org.openapispec.model.MemeResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.springmememuseumrest.mapper.DailyMemeMapper;
@@ -23,7 +20,6 @@ import com.springmememuseumrest.model.User;
 import com.springmememuseumrest.model.Vote;
 import com.springmememuseumrest.repository.DailyMemeRepository;
 import com.springmememuseumrest.repository.MemeRepository;
-import com.springmememuseumrest.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +37,7 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
     private final MemeRepository memeRepository;
     private final DailyMemeMapper dailyMemeMapper;
     private final MemeMapper memeMapper;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Transactional
     @Override
@@ -52,14 +48,7 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
                 .orElseGet(() -> selectAndSaveDailyMeme(today));
 
         // Recupera utente autenticato
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final User currentUser;
-        if (authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken)) {
-            currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
-        } else {
-            currentUser = null;
-        }  
+        final User currentUser = userService.getCurrentAuthenticatedUser();
 
         return ResponseEntity.ok(memeMapper.toModel(memeOfToday, currentUser));
     }
@@ -69,14 +58,7 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
         Page<Meme> pageObj = dailyMemeRepository.findAll(pageable).map(dailyMemeMapper::toMeme);
 
         // Recupera utente autenticato
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final User currentUser;
-        if (authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken)) {
-            currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
-        } else {
-            currentUser = null;
-        }  
+        User currentUser = userService.getCurrentAuthenticatedUser();
 
         List<MemeResponse> list = pageObj.stream().map(meme -> memeMapper.toModel(meme, currentUser)).toList();
         return ResponseEntity.ok(list);

@@ -13,9 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -45,6 +42,8 @@ public class MemeServiceImplementation implements MemeService {
     private final VoteRepository voteRepository;
     private final MemeMapper memeMapper;
     private final ImageStorageService imageStorageService;
+    private final UserService userService;
+
 
     @Override
     public List<MemeResponse> getMemeList(List<String> tags, String sort, String order, Integer page, Integer size) {
@@ -61,15 +60,7 @@ public class MemeServiceImplementation implements MemeService {
             : memeRepository.findAll(pageable);
 
         // Recupera utente autenticato
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final User currentUser;
-
-        if (authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken)) {
-            currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
-        } else {
-            currentUser = null;
-        }
+        final User currentUser = userService.getCurrentAuthenticatedUser();
 
         // Mappa i risultati includendo il voto dell'utente
         List<MemeResponse> result = memePage.stream()
@@ -91,8 +82,7 @@ public class MemeServiceImplementation implements MemeService {
 
     @Override
     public ResponseEntity<Void> uploadMeme(String title, List<String> tags, MultipartFile image) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String username = userService.getCurrentAuthenticatedUser().getUsername();
 
         User author = userRepository
             .findByUsername(username)
@@ -123,8 +113,7 @@ public class MemeServiceImplementation implements MemeService {
 
     @Override
     public ResponseEntity<Void> setVote(Integer id, ApiMemesIdVotePostRequest voteRequest) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String username = userService.getCurrentAuthenticatedUser().getUsername();
 
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
@@ -162,8 +151,7 @@ public class MemeServiceImplementation implements MemeService {
     public ResponseEntity<Void> deleteVote(
         Integer id
     ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String username = userService.getCurrentAuthenticatedUser().getUsername();
 
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
@@ -181,29 +169,20 @@ public class MemeServiceImplementation implements MemeService {
 
     @Override
     public ResponseEntity<MemeResponse> getMemeById(Integer id) {
-       Meme meme = memeRepository.findById(id.longValue())
+        Meme meme = memeRepository.findById(id.longValue())
             .orElseThrow(() -> new ResourceNotFoundException("Meme non trovato"));
 
         // Recupera utente autenticato
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final User currentUser;
-
-        if (authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken)) {
-            currentUser = userRepository.findByUsername(authentication.getName()).orElse(null);
-        } else {
-            currentUser = null;
-        }
+        final User currentUser = userService.getCurrentAuthenticatedUser();
        
-       MemeResponse response = memeMapper.toModel(meme, currentUser);
+        MemeResponse response = memeMapper.toModel(meme, currentUser);
        
-       return ResponseEntity.ok(response);
+        return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<Void> deleteMemeById(Integer id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+        String username = userService.getCurrentAuthenticatedUser().getUsername();
 
         Meme meme = memeRepository.findById(id.longValue())
             .orElseThrow(() -> new ResourceNotFoundException("Meme non trovato"));
