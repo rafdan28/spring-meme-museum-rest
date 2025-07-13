@@ -91,6 +91,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/MemeResponse"
 
+  /api/memes/daily/history:
+    get:
+      summary: Storico dei meme del giorno
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MemeResponse"
+
   /api/memes/{id}:
     get:
       tags:
