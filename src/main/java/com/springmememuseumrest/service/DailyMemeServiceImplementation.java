@@ -31,7 +31,7 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
     private static final double WEIGHT_COMMENT = 2.0;
     private static final double WEIGHT_UPVOTES = 1.0;
     private static final double WEIGHT_DOWNVOTES = -1.0;
-    private static final double DECAY_HALF_LIFE_DAYS = 30.0;
+    private static final double DECAY_HALF_LIFE_DAYS = 30.0; //quanto in fretta “invecchiano” i meme
 
     private final DailyMemeRepository dailyMemeRepository;
     private final MemeRepository memeRepository;
@@ -45,7 +45,8 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
         LocalDate today = LocalDate.now();
         Meme memeOfToday = dailyMemeRepository.findByDate(today)
                 .map(dailyMemeMapper::toMeme)
-                .orElseGet(() -> selectAndSaveDailyMeme(today));
+                .orElseGet(() -> selectAndSaveDailyMeme(today)); //Estrae il meme del giorno
+                                                                // se non presente nella data corrente
 
         // Recupera utente autenticato
         final User currentUser = userService.getCurrentAuthenticatedUser();
@@ -65,15 +66,18 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
     }
 
     private Meme selectAndSaveDailyMeme(LocalDate today) {
+        //1. Calcola la data di sbarramento usata per recuperare i meme 
+        //  non ancora eletti negli ultimi 30 giorni
         LocalDate barrageDate = today.minusDays(30);
-        List<Meme> eligibleDailyMeme = memeRepository.findEligibleDailyMeme(barrageDate);
 
-        if (eligibleDailyMeme.isEmpty())
+        //2. Recupera i possibili meme del giorno NON usati negli ultimi 30 giorni
+        List<Meme> eligibleDailyMemeList = memeRepository.findEligibleDailyMeme(barrageDate);
+
+        if (eligibleDailyMemeList.isEmpty())
             throw new IllegalStateException("Nessun meme del giorno eleggibile");
 
-        Meme chosenDailyMeme = weightedRandom(eligibleDailyMeme);
-
-        // aggiorna lastUsedDate e salva
+        //3. Estra il meme del giorno
+        Meme chosenDailyMeme = weightedRandom(eligibleDailyMemeList);
         chosenDailyMeme.setLastUsedDate(today);
         memeRepository.save(chosenDailyMeme);
         dailyMemeRepository.save(new DailyMeme(null, chosenDailyMeme, today, null));
@@ -81,35 +85,52 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
         return chosenDailyMeme;
     }
 
-    /* Estrazione casuale ponderata */
-    private Meme weightedRandom(List<Meme> list) {
-        List<Double> scores = list.stream().map(this::score).toList();
-        double total = scores.stream().mapToDouble(Double::doubleValue).sum();
+    /* Estrazione meme in modo casuale ponderato */
+    private Meme weightedRandom(List<Meme> eligibleDailyMemeList) {
+        // 1. Calcola i punteggi di tutti i meme scorrendo la lista
+        List<Double> scores = eligibleDailyMemeList.stream().map(this::score).toList();
 
-        double r = ThreadLocalRandom.current().nextDouble(total);
-        double cum = 0;
-        for (int i = 0; i < list.size(); i++) {
-            cum += scores.get(i);
-            if (cum >= r) return list.get(i);
+        // 2. Somma totale dei punteggi
+        double totalScore = scores.stream().mapToDouble(Double::doubleValue).sum();
+
+        // 3. Estrae un numero casuale uniforme r ∈ [0, totalScore)
+        double r = ThreadLocalRandom.current().nextDouble(totalScore);
+
+        // 4. Scorri la lista cumulando i punteggi;
+        //    il primo che fa superare r viene scelto
+        double tot = 0;
+        for (int i = 0; i < eligibleDailyMemeList.size(); i++) {
+            tot += scores.get(i);
+            if (tot >= r) return eligibleDailyMemeList.get(i); //meme vincente
         }
-        return list.getLast();  // fallback
+
+        return eligibleDailyMemeList.getLast();  // fallback se non riuscisse ad estrarre un meme vincente
     }
 
-    /* Punteggio con tag-penalty e decay */
+    /* Calcolo del punteggio per ogni meme con tag-penalty e decadimento temporale */
     private double score(Meme meme) {
-        long upvotes = meme.getVotes().stream().filter(v -> v.getType()==Vote.VoteType.UPVOTE).count();
-        long downvotes = meme.getVotes().stream().filter(v -> v.getType()==Vote.VoteType.DOWNVOTE).count();
+        // 1. Conta upvote, downvote e commenti
+        long upvotes = meme.getVotes().stream().filter(v -> v.getType() == Vote.VoteType.UPVOTE).count();
+        long downvotes = meme.getVotes().stream().filter(v -> v.getType() == Vote.VoteType.DOWNVOTE).count();
         int comments = meme.getComments().size();
+        
+        // 2. Punteggio con pesi
+        double scoreWeight = comments * WEIGHT_COMMENT          // commenti valgono di più
+                            + upvotes * WEIGHT_UPVOTES          // upvotes hanno un peso medio
+                            + downvotes * WEIGHT_DOWNVOTES;     // downvotes aggiungono una penalità
 
-        double raw = comments * WEIGHT_COMMENT + upvotes * WEIGHT_UPVOTES + downvotes * WEIGHT_DOWNVOTES;
-
+        // 3. Fattore tag‑penalty / bonus
         int tagSize = meme.getTags().size();
-        double tagFactor = tagSize > 10 ? 0.8 : (tagSize < 5 ? 1.1 : 1.0);
+        double tagFactor = tagSize > 10 ? 0.8 :         // troppi tag danno un punteggio più basso
+                           (tagSize < 5 ? 1.1 : 1.0);   // pochi tag < 5 danno un punteggio più alto rispetto
+                                                        // ai tag compresi tra 5 e 10
 
+        // 4. Decadimento temporale, i memi più vecchi di 30g valgono meno
         long days = ChronoUnit.DAYS.between(meme.getCreatedAt(), Instant.now());
         double decay = Math.exp(-days / DECAY_HALF_LIFE_DAYS);
 
-        return raw * tagFactor * decay;
+        // 5. Calcolo del punteggio finale
+        return scoreWeight * tagFactor * decay;
     }
     
 }
