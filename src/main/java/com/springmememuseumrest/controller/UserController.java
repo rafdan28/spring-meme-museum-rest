@@ -3,6 +3,8 @@ package com.springmememuseumrest.controller;
 import org.openapispec.api.UserApi;
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
+import org.openapispec.model.RecoverRequest;
+import org.openapispec.model.RecoverResponse;
 import org.openapispec.model.RegisterRequest;
 import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
@@ -33,6 +35,11 @@ public class UserController implements UserApi {
         RegisterRequest registerRequest
     ) {
         return userService.usersRegister(registerRequest);
+    }
+
+    @Override
+    public ResponseEntity<RecoverResponse> apiUsersRecoverPost(RecoverRequest recoverRequest) {
+        return userService.recoverCredentials(recoverRequest);
     }
 
     @Override

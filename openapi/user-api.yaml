@@ -45,6 +45,28 @@ paths:
         "401":
           description: Credenziali non valide
 
+  /api/users/recover:
+    post:
+      tags:
+        - User
+      summary: Recupera le credenziali (username e/o password)
+      description: L'utente può richiedere il recupero dello username, della password o entrambi.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecoverRequest"
+      responses:
+        "200":
+          description: Istruzioni inviate via email
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecoverResponse"
+        "404":
+          description: Utente non trovato
+
   /api/users/user:
     get:
       tags:
@@ -147,6 +169,27 @@ components:
         tokenType:
           type: string
           example: Bearer
+
+    RecoverRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+        recoverUsername:
+          type: boolean
+          default: false
+        recoverPassword:
+          type: boolean
+          default: false
+
+    RecoverResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Istruzioni per il recupero sono state inviate via email."
 
     UserResponse:
       type: object

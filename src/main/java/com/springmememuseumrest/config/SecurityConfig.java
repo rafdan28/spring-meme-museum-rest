@@ -3,6 +3,7 @@ package com.springmememuseumrest.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.springmememuseumrest.service.EmailService;
+
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -44,7 +48,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html", "/swagger-ui/**",
                                 "/api/users/login",
-                                "/api/users/register").permitAll()
+                                "/api/users/register",
+                                "/api/users/recover").permitAll()
                 // .requestMatchers(
                 //     "/", "/index.html", "/css/**", 
                 //     "/v3/api-docs/**", 

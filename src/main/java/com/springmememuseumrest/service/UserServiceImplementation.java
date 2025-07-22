@@ -1,9 +1,13 @@
 package com.springmememuseumrest.service;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
+import org.openapispec.model.RecoverRequest;
+import org.openapispec.model.RecoverResponse;
 import org.openapispec.model.RegisterRequest;
 import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
@@ -34,6 +38,7 @@ public class UserServiceImplementation implements UserService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final ImageStorageService imageStorageService;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final JwtConfig jwtConfig;
     private final UserMapper userMapper;
@@ -87,6 +92,38 @@ public class UserServiceImplementation implements UserService {
         } else {
             throw new UnauthorizedException("Credenziali non valide");
         }
+    }
+
+    @Override
+    public ResponseEntity<RecoverResponse> recoverCredentials(RecoverRequest recoverRequest) {
+        String email = recoverRequest.getEmail();
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new RecoverResponse().message("Nessun utente trovato con questa email"));
+        }
+
+        User user = userOpt.get();
+
+        String username = null;
+        String tempPassword = null;
+
+        if (Boolean.TRUE.equals(recoverRequest.getRecoverUsername())) {
+            username = user.getUsername();
+        }
+
+        if (Boolean.TRUE.equals(recoverRequest.getRecoverPassword())) {
+            tempPassword = UUID.randomUUID().toString().substring(0, 5);
+            user.setPassword(passwordEncoder.encode(tempPassword));
+            userRepository.save(user);
+        }
+
+        // Invia email
+        emailService.sendPasswordRecoveryEmail(user.getEmail(), username, user.getName(), user.getSurname(), tempPassword);
+
+        return ResponseEntity.ok(new RecoverResponse()
+                .message("Se l'email esiste, le credenziali sono state inviate."));
     }
 
     @Override

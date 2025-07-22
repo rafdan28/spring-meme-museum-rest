@@ -2,6 +2,8 @@ package com.springmememuseumrest.service;
 
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
+import org.openapispec.model.RecoverRequest;
+import org.openapispec.model.RecoverResponse;
 import org.openapispec.model.RegisterRequest;
 import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
@@ -17,6 +19,9 @@ public interface UserService {
     ResponseEntity<RegisterResponse> usersRegister(RegisterRequest registerRequest);
     JwtResponse userslogin(
         LoginRequest loginRequest
+    );
+    ResponseEntity<RecoverResponse> recoverCredentials(
+        RecoverRequest recoverRequest
     );
     ResponseEntity<UserResponse> getUserData();
     ResponseEntity<UserResponse> updateUserData(
