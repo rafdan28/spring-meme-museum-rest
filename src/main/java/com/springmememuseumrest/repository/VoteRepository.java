@@ -10,6 +10,11 @@ import com.springmememuseumrest.model.User;
 import com.springmememuseumrest.model.Vote;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
-    Optional<Vote> findByUserAndMeme(User user, Meme meme);
-    List<Vote> findByMeme(Meme meme);
+    Optional<Vote> findByUserAndMeme(
+        User user, 
+        Meme meme
+    );
+    List<Vote> findByMeme(
+        Meme meme
+    );
 }
