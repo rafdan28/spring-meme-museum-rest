@@ -12,7 +12,7 @@ public class EmailServiceImplementation implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    public void sendPasswordRecoveryEmail(String to, String username, String nome, String cognome, String tempPassword) {
+    public void sendEmail(String to, String username, String nome, String cognome, String tempPassword) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject("🔐 Recupero credenziali - MEME MUSEUM");

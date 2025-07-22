@@ -119,8 +119,7 @@ public class UserServiceImplementation implements UserService {
             userRepository.save(user);
         }
 
-        // Invia email
-        emailService.sendPasswordRecoveryEmail(user.getEmail(), username, user.getName(), user.getSurname(), tempPassword);
+        emailService.sendEmail(user.getEmail(), username, user.getName(), user.getSurname(), tempPassword);
 
         return ResponseEntity.ok(new RecoverResponse()
                 .message("Se l'email esiste, le credenziali sono state inviate."));

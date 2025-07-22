@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface EmailService {
-    public void sendPasswordRecoveryEmail(
+    public void sendEmail(
         String to, 
         String username, 
         String nome, 
