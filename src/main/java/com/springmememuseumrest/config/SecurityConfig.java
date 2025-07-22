@@ -18,9 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.springmememuseumrest.service.EmailService;
-
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -75,6 +72,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+
+    /* 
+     * Encoder Password bean
+     * Required for encode the password
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
