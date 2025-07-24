@@ -6,6 +6,7 @@ import org.openapispec.api.MemeApi;
 import org.openapispec.model.ApiMemesIdVotePostRequest;
 import org.openapispec.model.CommentRequest;
 import org.openapispec.model.CommentResponse;
+import org.openapispec.model.DailyMemeResponse;
 import org.openapispec.model.MemeResponse;
 import org.openapispec.model.VoteResponse;
 import org.springframework.data.domain.PageRequest;
@@ -130,7 +131,7 @@ public class MemeController implements MemeApi {
     }
 
     @Override
-    public ResponseEntity<List<MemeResponse>> apiMemesDailyHistoryGet(Integer page, Integer size) {
+    public ResponseEntity<List<DailyMemeResponse>> apiMemesDailyHistoryGet(Integer page, Integer size) {
         return dailyMemeService.getDailyMemeHistory(
             PageRequest.of(
                 page != null ? page : 0,

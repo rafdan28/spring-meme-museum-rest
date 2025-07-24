@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.openapispec.model.DailyMemeResponse;
 import org.openapispec.model.MemeResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,14 +56,19 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
     }
 
     @Override
-    public ResponseEntity<List<MemeResponse>> getDailyMemeHistory(Pageable pageable) {
-        Page<Meme> pageObj = dailyMemeRepository.findAll(pageable).map(dailyMemeMapper::toMeme);
+    public ResponseEntity<List<DailyMemeResponse>> getDailyMemeHistory(Pageable pageable) {
+        Page<DailyMeme> page = dailyMemeRepository.findAll(pageable);
 
         // Recupera utente autenticato
         User currentUser = userService.getCurrentAuthenticatedUser();
 
-        List<MemeResponse> list = pageObj.stream().map(meme -> memeMapper.toModel(meme, currentUser)).toList();
-        return ResponseEntity.ok(list);
+        List<DailyMemeResponse> response = page.stream()
+                .map(daily -> new DailyMemeResponse()
+                    .meme(memeMapper.toModel(daily.getMeme(), currentUser))
+                    .date(daily.getDate()))
+                .toList();
+
+    return ResponseEntity.ok(response);
     }
 
     private Meme selectAndSaveDailyMeme(LocalDate today) {
