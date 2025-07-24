@@ -113,7 +113,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/MemeResponse"
+                  $ref: "#/components/schemas/DailyMemeResponse"
 
   /api/memes/{id}:
     get:
@@ -343,6 +343,16 @@ components:
         userVote:
           type: integer
           nullable: true
+
+    DailyMemeResponse:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2025-07-15"
+        meme:
+          $ref: "#/components/schemas/MemeResponse"
 
     VoteResponse:
       type: object
