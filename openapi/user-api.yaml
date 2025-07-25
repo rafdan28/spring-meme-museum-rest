@@ -119,6 +119,25 @@ paths:
         "401":
           description: Non autorizzato
 
+  /api/users/user/memes:
+    get:
+      tags:
+        - User
+      summary: Recupera tutti i meme creati dall'utente autenticato
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista dei meme creati
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MemeResponse"
+        "401":
+          description: Non autorizzato
+          
 components:
   securitySchemes:
     bearerAuth:
@@ -210,3 +229,33 @@ components:
             type: string
         imageProfileUrl:
           type: string
+    
+    MemeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        imageUrl:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        author:
+          type: string
+        authorImageUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        upvotes:
+          type: integer
+        downvotes:
+          type: integer
+        comments:
+          type: integer
+        userVote:
+          type: integer
+          nullable: true

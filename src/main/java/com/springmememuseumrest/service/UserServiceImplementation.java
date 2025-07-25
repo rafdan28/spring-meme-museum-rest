@@ -1,11 +1,13 @@
 package com.springmememuseumrest.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
+import org.openapispec.model.MemeResponse;
 import org.openapispec.model.RecoverRequest;
 import org.openapispec.model.RecoverResponse;
 import org.openapispec.model.RegisterRequest;
@@ -25,8 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.springmememuseumrest.config.JwtConfig;
 import com.springmememuseumrest.config.exception.UnauthorizedException;
+import com.springmememuseumrest.mapper.MemeMapper;
 import com.springmememuseumrest.mapper.UserMapper;
 import com.springmememuseumrest.model.User;
+import com.springmememuseumrest.repository.MemeRepository;
 import com.springmememuseumrest.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -37,11 +41,13 @@ public class UserServiceImplementation implements UserService {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final MemeRepository memeRepository;
     private final ImageStorageService imageStorageService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final JwtConfig jwtConfig;
     private final UserMapper userMapper;
+    private final MemeMapper memeMapper;
 
     @Override
     public User getCurrentAuthenticatedUser() {
@@ -194,5 +200,24 @@ public class UserServiceImplementation implements UserService {
         response.setImageProfileUrl(user.getImageProfileUrl());
 
     return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<List<MemeResponse>> getUserMemes() {
+       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
+
+        List<MemeResponse> memes = memeRepository.findAllByAuthor(user).stream()
+            .map(meme -> memeMapper.toModel(meme, user))
+            .toList();
+
+        return ResponseEntity.ok(memes);
     }
 }

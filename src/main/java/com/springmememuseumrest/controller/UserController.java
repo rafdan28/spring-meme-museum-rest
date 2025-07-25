@@ -1,8 +1,11 @@
 package com.springmememuseumrest.controller;
 
+import java.util.List;
+
 import org.openapispec.api.UserApi;
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
+import org.openapispec.model.MemeResponse;
 import org.openapispec.model.RecoverRequest;
 import org.openapispec.model.RecoverResponse;
 import org.openapispec.model.RegisterRequest;
@@ -55,5 +58,10 @@ public class UserController implements UserApi {
             MultipartFile image
     ) {
         return userService.updateUserData(name, surname, email, image);
+    }
+
+    @Override
+    public ResponseEntity<List<MemeResponse>> apiUsersUserMemesGet() {
+        return userService.getUserMemes();
     }
 }

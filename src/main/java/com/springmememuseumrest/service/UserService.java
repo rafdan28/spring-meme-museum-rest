@@ -1,7 +1,10 @@
 package com.springmememuseumrest.service;
 
+import java.util.List;
+
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
+import org.openapispec.model.MemeResponse;
 import org.openapispec.model.RecoverRequest;
 import org.openapispec.model.RecoverResponse;
 import org.openapispec.model.RegisterRequest;
@@ -30,4 +33,5 @@ public interface UserService {
         String email,
         MultipartFile image
     );
+    ResponseEntity<List<MemeResponse>> getUserMemes();
 }
