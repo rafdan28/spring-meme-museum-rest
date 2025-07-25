@@ -122,6 +122,7 @@ public class UserServiceImplementation implements UserService {
         if (Boolean.TRUE.equals(recoverRequest.getRecoverPassword())) {
             tempPassword = UUID.randomUUID().toString().substring(0, 5);
             user.setPassword(passwordEncoder.encode(tempPassword));
+            user.setTmpPassword(true);
             userRepository.save(user);
         }
 
@@ -129,6 +130,15 @@ public class UserServiceImplementation implements UserService {
 
         return ResponseEntity.ok(new RecoverResponse()
                 .message("Se l'email esiste, le credenziali sono state inviate."));
+    }
+
+    @Override
+    public ResponseEntity<Void> changePassword(String newPassword) {
+        User user = getCurrentAuthenticatedUser(); 
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setTmpPassword(false); 
+        userRepository.save(user);
+        return ResponseEntity.noContent().build();
     }
 
     @Override

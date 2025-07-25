@@ -26,6 +26,9 @@ public interface UserService {
     ResponseEntity<RecoverResponse> recoverCredentials(
         RecoverRequest recoverRequest
     );
+    ResponseEntity<Void> changePassword(
+        String newPassword
+    );
     ResponseEntity<UserResponse> getUserData();
     ResponseEntity<UserResponse> updateUserData(
         String name,

@@ -3,6 +3,7 @@ package com.springmememuseumrest.controller;
 import java.util.List;
 
 import org.openapispec.api.UserApi;
+import org.openapispec.model.ApiUsersPasswordPatchRequest;
 import org.openapispec.model.JwtResponse;
 import org.openapispec.model.LoginRequest;
 import org.openapispec.model.MemeResponse;
@@ -41,8 +42,17 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<RecoverResponse> apiUsersRecoverPost(RecoverRequest recoverRequest) {
+    public ResponseEntity<RecoverResponse> apiUsersRecoverPost(
+        RecoverRequest recoverRequest
+    ) {
         return userService.recoverCredentials(recoverRequest);
+    }
+
+    @Override
+    public ResponseEntity<Void> apiUsersPasswordPatch(
+        ApiUsersPasswordPatchRequest apiUsersPasswordPatchRequest
+    ){
+        return userService.changePassword(apiUsersPasswordPatchRequest.getNewPassword());
     }
 
     @Override

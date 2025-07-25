@@ -67,6 +67,30 @@ paths:
         "404":
           description: Utente non trovato
 
+  /api/users/password:
+    patch:
+      tags:
+        - User
+      summary: Cambia la password dell'utente autenticato
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [newPassword]
+              properties:
+                newPassword:
+                  type: string
+      responses:
+        "204":
+          description: Password aggiornata con successo
+        "401":
+          description: Non autorizzato
+
+
   /api/users/user:
     get:
       tags:

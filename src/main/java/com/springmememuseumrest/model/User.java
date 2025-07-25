@@ -47,6 +47,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean tmpPassword;
+
     private String imageProfileUrl;
 
     @CreationTimestamp
