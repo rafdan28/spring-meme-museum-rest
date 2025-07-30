@@ -1,6 +1,7 @@
 package com.springmememuseumrest.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -199,6 +200,50 @@ public class MemeServiceImplementation implements MemeService {
 
         memeRepository.delete(meme);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<MemeResponse> updateMemeById(Integer id, String title, List<String> tags, MultipartFile image) {
+        User currentUser = userService.getCurrentAuthenticatedUser();
+
+        Meme meme = memeRepository.findById(id.longValue())
+            .orElseThrow(() -> new ResourceNotFoundException("Meme non trovato"));
+
+        if (!meme.getAuthor().getId().equals(currentUser.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        if (title != null && !title.isEmpty()) {
+            meme.setTitle(title);
+        }
+
+        try {
+            if (image != null && !image.isEmpty()) {
+                // Cancella immagine precedente da SeaweedFS
+                String oldImagePath = meme.getImageUrl();
+                imageStorageService.deleteImage(oldImagePath);
+
+                // Carica nuova immagine
+                String newImagePath = imageStorageService.uploadImage(image, "memes/");
+                meme.setImageUrl(newImagePath);
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();       
+        }
+
+        if (tags != null) {
+            List<Tag> tagList = tags.stream()
+                .map(tag -> tagRepository.findByName(tag.toLowerCase())
+                    .orElseGet(() -> tagRepository.save(new Tag(tag.toLowerCase()))))
+                .collect(Collectors.toCollection(ArrayList::new));
+            meme.setTags(tagList);
+        }
+
+        memeRepository.save(meme);
+
+        MemeResponse response = memeMapper.toModel(meme, currentUser);
+       
+        return ResponseEntity.ok(response);
     }
     
 }

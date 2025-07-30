@@ -135,6 +135,48 @@ paths:
                 $ref: "#/components/schemas/MemeResponse"
         "404":
           description: Meme non trovato
+    
+    patch:
+      tags:
+        - Meme
+      summary: Modifica un proprio meme
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                image:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Meme aggiornato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemeResponse"
+        "400":
+          description: Dati non validi
+        "401":
+          description: Non autorizzato
+        "404":
+          description: Meme non trovato
 
     delete:
       tags:

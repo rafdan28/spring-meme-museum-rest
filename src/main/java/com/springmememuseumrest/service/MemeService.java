@@ -32,6 +32,12 @@ public interface MemeService {
     public ResponseEntity<MemeResponse> getMemeById(
         Integer id
     );
+    public ResponseEntity<MemeResponse> updateMemeById(
+        Integer id, 
+        String title, 
+        List<String> tags,
+        MultipartFile image
+    );
     public ResponseEntity<Void> deleteMemeById(
         Integer id
     );

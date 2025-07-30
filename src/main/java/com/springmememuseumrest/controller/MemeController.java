@@ -89,6 +89,16 @@ public class MemeController implements MemeApi {
     }
 
     @Override
+    public ResponseEntity<MemeResponse> apiMemesIdPatch(
+        Integer id,
+        @RequestParam(required = false) String title,
+        @RequestParam(required = false) List<String> tags,
+        @RequestPart(required = false) MultipartFile image
+    ) {
+        return memeService.updateMemeById(id, title, tags, image);
+    }
+
+    @Override
     public ResponseEntity<Void> apiMemesIdDelete(
         Integer id
     ) {
