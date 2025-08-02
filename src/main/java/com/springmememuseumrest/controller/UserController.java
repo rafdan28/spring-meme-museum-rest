@@ -27,6 +27,13 @@ public class UserController implements UserApi {
     private final UserService userService;
 
     @Override
+    public ResponseEntity<RegisterResponse> apiUsersRegisterPost(
+        RegisterRequest registerRequest
+    ) {
+        return userService.usersRegister(registerRequest);
+    }
+
+    @Override
     public ResponseEntity<JwtResponse> apiUsersLoginPost(
         LoginRequest loginRequest
     ) {
@@ -35,10 +42,8 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<RegisterResponse> apiUsersRegisterPost(
-        RegisterRequest registerRequest
-    ) {
-        return userService.usersRegister(registerRequest);
+    public ResponseEntity<Void> apiUsersUsernameDelete(String username) {
+        return userService.deleteUserByAdmin(username);
     }
 
     @Override

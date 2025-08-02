@@ -45,6 +45,28 @@ paths:
         "401":
           description: Credenziali non valide
 
+  /api/users/{username}:
+    delete:
+      tags:
+        - User
+      summary: Elimina un utente (solo per amministratori)
+      description: Richiede un token JWT con ruolo `admin`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Utente eliminato con successo
+        "403":
+          description: Accesso negato
+        "404":
+          description: Utente non trovato
+
   /api/users/recover:
     post:
       tags:
@@ -89,7 +111,6 @@ paths:
           description: Password aggiornata con successo
         "401":
           description: Non autorizzato
-
 
   /api/users/user:
     get:
@@ -161,7 +182,7 @@ paths:
                   $ref: "#/components/schemas/MemeResponse"
         "401":
           description: Non autorizzato
-          
+
 components:
   securitySchemes:
     bearerAuth:
@@ -253,7 +274,7 @@ components:
             type: string
         imageProfileUrl:
           type: string
-    
+
     MemeResponse:
       type: object
       properties:

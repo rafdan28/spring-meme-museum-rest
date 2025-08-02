@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity 
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -40,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/api/memes/daily").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/memes/daily/history").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/tags/**").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
                 .requestMatchers("/", "/index.html", "/css/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html", "/swagger-ui/**",

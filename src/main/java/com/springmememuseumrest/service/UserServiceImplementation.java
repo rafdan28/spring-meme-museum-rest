@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.springmememuseumrest.config.JwtConfig;
+import com.springmememuseumrest.config.exception.ResourceNotFoundException;
 import com.springmememuseumrest.config.exception.UnauthorizedException;
 import com.springmememuseumrest.mapper.MemeMapper;
 import com.springmememuseumrest.mapper.UserMapper;
@@ -98,6 +99,14 @@ public class UserServiceImplementation implements UserService {
         } else {
             throw new UnauthorizedException("Credenziali non valide");
         }
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteUserByAdmin(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Utente non trovato"));
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build();
     }
 
     @Override

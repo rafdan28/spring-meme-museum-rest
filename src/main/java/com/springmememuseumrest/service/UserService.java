@@ -19,9 +19,14 @@ import com.springmememuseumrest.model.User;
 @Service
 public interface UserService {
     User getCurrentAuthenticatedUser();
-    ResponseEntity<RegisterResponse> usersRegister(RegisterRequest registerRequest);
+    ResponseEntity<RegisterResponse> usersRegister(
+        RegisterRequest registerRequest
+    );
     JwtResponse userslogin(
         LoginRequest loginRequest
+    );
+    ResponseEntity<Void> deleteUserByAdmin(
+        String username
     );
     ResponseEntity<RecoverResponse> recoverCredentials(
         RecoverRequest recoverRequest
