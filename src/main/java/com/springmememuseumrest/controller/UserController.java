@@ -67,10 +67,10 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<UserResponse> apiUsersUserPatch(
-            String name,
-            String surname,
-            String email,
-            MultipartFile image
+        String name,
+        String surname,
+        String email,
+        MultipartFile image
     ) {
         return userService.updateUserData(name, surname, email, image);
     }
