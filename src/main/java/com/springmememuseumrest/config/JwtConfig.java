@@ -46,7 +46,9 @@ public class JwtConfig {
         claims.put("email", user.getEmail());
         claims.put("imageProfileUrl", user.getImageProfileUrl() == null ? "" : user.getImageProfileUrl() );
         claims.put("tmpPassword", user.isTmpPassword());
-        claims.put("role", user.getRoles());
+        claims.put("roles", user.getRoles().stream()
+                    .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                    .toList());
 
         return Jwts.builder()
                 .setHeaderParam("alg", "HS256")  
