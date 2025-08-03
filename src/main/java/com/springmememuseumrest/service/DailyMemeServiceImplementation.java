@@ -93,24 +93,31 @@ public class DailyMemeServiceImplementation implements DailyMemeService {
 
     /* Estrazione meme in modo casuale ponderato */
     private Meme weightedRandom(List<Meme> eligibleDailyMemeList) {
-        // 1. Calcola i punteggi di tutti i meme scorrendo la lista
+        // 1. Calcola i punteggi di tutti i meme
         List<Double> scores = eligibleDailyMemeList.stream().map(this::score).toList();
 
-        // 2. Somma totale dei punteggi
+        // 2. Calcola la somma dei punteggi
         double totalScore = scores.stream().mapToDouble(Double::doubleValue).sum();
 
-        // 3. Estrae un numero casuale uniforme r ∈ [0, totalScore)
+        // 3. Se totalScore è 0 (cioè tutti i punteggi sono 0), seleziona un meme a caso
+        if (totalScore <= 0 || scores.stream().allMatch(score -> score <= 0)) {
+            return eligibleDailyMemeList.get(ThreadLocalRandom.current().nextInt(eligibleDailyMemeList.size()));
+        }
+
+        // 4. Estrai un numero casuale da [0, totalScore)
         double r = ThreadLocalRandom.current().nextDouble(totalScore);
 
-        // 4. Scorri la lista cumulando i punteggi;
-        //    il primo che fa superare r viene scelto
+        // 5. Selezione ponderata
         double tot = 0;
         for (int i = 0; i < eligibleDailyMemeList.size(); i++) {
             tot += scores.get(i);
-            if (tot >= r) return eligibleDailyMemeList.get(i); //meme vincente
+            if (tot >= r) {
+                return eligibleDailyMemeList.get(i);
+            }
         }
 
-        return eligibleDailyMemeList.getLast();  // fallback se non riuscisse ad estrarre un meme vincente
+        // 6. Fallback, non dovrebbe mai succedere
+        return eligibleDailyMemeList.getLast();
     }
 
     /* Calcolo del punteggio per ogni meme con tag-penalty e decadimento temporale */
