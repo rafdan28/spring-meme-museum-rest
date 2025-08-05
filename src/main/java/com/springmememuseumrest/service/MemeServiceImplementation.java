@@ -33,7 +33,6 @@ import com.springmememuseumrest.repository.TagRepository;
 import com.springmememuseumrest.repository.UserRepository;
 import com.springmememuseumrest.repository.VoteRepository;
 
-import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -59,68 +58,55 @@ public class MemeServiceImplementation implements MemeService {
 
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         String sortBy = "createdAt";
-
         PageRequest pageable = PageRequest.of(pageNumber, pageSize, Sort.by(direction, sortBy));
 
-        // Normalizza tags (se non sono vuoti) a lower-case perché il matching verrà fatto in lower-case
+        // Normalizza tags
         List<String> normalizedTags = Optional.ofNullable(tags)
-                                            .orElse(Collections.emptyList())
-                                            .stream()
-                                            .map(String::trim)
-                                            .filter(s -> !s.isEmpty())
-                                            .map(String::toLowerCase)
-                                            .collect(Collectors.toList());
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .map(String::toLowerCase)
+            .collect(Collectors.toList());
 
-        //Splitta il titolo in parole
-        List<String> titleWords;
-        if (title == null) titleWords = Collections.emptyList();
-        else titleWords = Arrays.stream(title.split("\\W+"))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
+        // Splitta titolo in parole
+        List<String> titleWords = (title == null) ? Collections.emptyList() :
+            Arrays.stream(title.split("\\W+"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
 
         Specification<Meme> spec = (root, query, cb) -> {
-            // Evita duplicati quando facciamo join con tags
             query.distinct(true);
-
             List<Predicate> predicates = new ArrayList<>();
 
             if (!normalizedTags.isEmpty()) {
-                // Join con tags e controllo nome tag in list
+                // Cerca solo per tag
                 Join<Meme, Tag> tagJoin = root.join("tags", JoinType.LEFT);
-                Expression<String> tagNameLower = cb.lower(tagJoin.get("name"));
-                predicates.add(tagNameLower.in(normalizedTags));
-            } else if (!titleWords.isEmpty()) {
-                // Se non ci sono tags ma c'è title cerchiamo per parole sia nel titolo che nei tag
-                List<Predicate> wordPreds = new ArrayList<>();
+                predicates.add(cb.lower(tagJoin.get("name")).in(normalizedTags));
 
-                // Titolo contiene (case-insensitive) per ciascuna parola
-                for (String w : titleWords) {
-                    wordPreds.add(cb.like(cb.lower(root.get("title")), "%" + w + "%"));
+            } else if (!titleWords.isEmpty()) {
+                // Titolo deve contenere tutte le parole (AND)
+                Predicate titleAndPredicate = cb.conjunction();
+                for (String word : titleWords) {
+                    titleAndPredicate = cb.and(titleAndPredicate,
+                            cb.like(cb.lower(root.get("title")), "%" + word + "%"));
                 }
 
-                // tags match any word
+                // Tag deve coincidere esattamente con almeno una parola
                 Join<Meme, Tag> tagJoin = root.join("tags", JoinType.LEFT);
-                Expression<String> tagNameLower = cb.lower(tagJoin.get("name"));
-                wordPreds.add(tagNameLower.in(titleWords));
+                Predicate tagExactMatch = cb.lower(tagJoin.get("name")).in(titleWords);
 
-                // OR di tutte le condizioni per le parole
-                predicates.add(cb.or(wordPreds.toArray(new Predicate[0])));
+                // Il match valido è: titolo che contiene tutte le parole OR tag che matcha esattamente
+                predicates.add(cb.or(titleAndPredicate, tagExactMatch));
             }
 
-            // Se non ci sono né tag né titleWords, nessun filtro, cioè tutti i meme (predicates vuoto)
-            if (predicates.isEmpty()) {
-                return cb.conjunction();
-            } else {
-                return cb.and(predicates.toArray(new Predicate[0]));
-            }
+            return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
         };
 
         Page<Meme> memePage;
-        // Se sono stati passati tags espliciti usiamo la ricerca per tag 
         if (!normalizedTags.isEmpty()) {
-            // usiamo la spec perché ci serve la distinzione ed eventuale join; oppure potresti chiamare il repository.findDistinctByTags_NameIn
             memePage = memeRepository.findDistinctByTags_NameIn(normalizedTags, pageable);
         } else if (!titleWords.isEmpty()) {
             memePage = memeRepository.findAll(spec, pageable);
