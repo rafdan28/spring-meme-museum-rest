@@ -49,6 +49,11 @@ paths:
             type: array
             items:
               type: string
+        - name: title
+          in: query
+          description: Filtra per titolo
+          schema:
+            type: string
         - name: sort
           in: query
           description: Ordina per `uploadDate`, `upvotes`, `downvotes`
@@ -135,7 +140,7 @@ paths:
                 $ref: "#/components/schemas/MemeResponse"
         "404":
           description: Meme non trovato
-    
+
     patch:
       tags:
         - Meme

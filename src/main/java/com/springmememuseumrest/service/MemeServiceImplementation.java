@@ -2,6 +2,7 @@ package com.springmememuseumrest.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.openapispec.model.ApiMemesIdVotePostRequest;
 import org.openapispec.model.MemeResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,6 +33,10 @@ import com.springmememuseumrest.repository.TagRepository;
 import com.springmememuseumrest.repository.UserRepository;
 import com.springmememuseumrest.repository.VoteRepository;
 
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,7 +53,7 @@ public class MemeServiceImplementation implements MemeService {
 
 
     @Override
-    public List<MemeResponse> getMemeList(List<String> tags, String sort, String order, Integer page, Integer size) {
+    public List<MemeResponse> getMemeList(List<String> tags, String title, String sort, String order, Integer page, Integer size) {
         int pageNumber = (page != null && page >= 0) ? page : 0;
         int pageSize = (size != null && size > 0) ? size : 10;
 
@@ -56,14 +62,74 @@ public class MemeServiceImplementation implements MemeService {
 
         PageRequest pageable = PageRequest.of(pageNumber, pageSize, Sort.by(direction, sortBy));
 
-        Page<Meme> memePage = (tags != null && !tags.isEmpty())
-            ? memeRepository.findDistinctByTags_NameIn(tags, pageable)
-            : memeRepository.findAll(pageable);
+        // Normalizza tags (se non sono vuoti) a lower-case perché il matching verrà fatto in lower-case
+        List<String> normalizedTags = Optional.ofNullable(tags)
+                                            .orElse(Collections.emptyList())
+                                            .stream()
+                                            .map(String::trim)
+                                            .filter(s -> !s.isEmpty())
+                                            .map(String::toLowerCase)
+                                            .collect(Collectors.toList());
 
-        // Recupera utente autenticato
+        //Splitta il titolo in parole
+        List<String> titleWords;
+        if (title == null) titleWords = Collections.emptyList();
+        else titleWords = Arrays.stream(title.split("\\W+"))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList());
+
+        Specification<Meme> spec = (root, query, cb) -> {
+            // Evita duplicati quando facciamo join con tags
+            query.distinct(true);
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (!normalizedTags.isEmpty()) {
+                // Join con tags e controllo nome tag in list
+                Join<Meme, Tag> tagJoin = root.join("tags", JoinType.LEFT);
+                Expression<String> tagNameLower = cb.lower(tagJoin.get("name"));
+                predicates.add(tagNameLower.in(normalizedTags));
+            } else if (!titleWords.isEmpty()) {
+                // Se non ci sono tags ma c'è title cerchiamo per parole sia nel titolo che nei tag
+                List<Predicate> wordPreds = new ArrayList<>();
+
+                // Titolo contiene (case-insensitive) per ciascuna parola
+                for (String w : titleWords) {
+                    wordPreds.add(cb.like(cb.lower(root.get("title")), "%" + w + "%"));
+                }
+
+                // tags match any word
+                Join<Meme, Tag> tagJoin = root.join("tags", JoinType.LEFT);
+                Expression<String> tagNameLower = cb.lower(tagJoin.get("name"));
+                wordPreds.add(tagNameLower.in(titleWords));
+
+                // OR di tutte le condizioni per le parole
+                predicates.add(cb.or(wordPreds.toArray(new Predicate[0])));
+            }
+
+            // Se non ci sono né tag né titleWords, nessun filtro, cioè tutti i meme (predicates vuoto)
+            if (predicates.isEmpty()) {
+                return cb.conjunction();
+            } else {
+                return cb.and(predicates.toArray(new Predicate[0]));
+            }
+        };
+
+        Page<Meme> memePage;
+        // Se sono stati passati tags espliciti usiamo la ricerca per tag 
+        if (!normalizedTags.isEmpty()) {
+            // usiamo la spec perché ci serve la distinzione ed eventuale join; oppure potresti chiamare il repository.findDistinctByTags_NameIn
+            memePage = memeRepository.findDistinctByTags_NameIn(normalizedTags, pageable);
+        } else if (!titleWords.isEmpty()) {
+            memePage = memeRepository.findAll(spec, pageable);
+        } else {
+            memePage = memeRepository.findAll(pageable);
+        }
+
         final User currentUser = userService.getCurrentAuthenticatedUser();
 
-        // Mappa i risultati includendo il voto dell'utente
         List<MemeResponse> result = memePage.stream()
                 .map(meme -> memeMapper.toModel(meme, currentUser))
                 .collect(Collectors.toList());

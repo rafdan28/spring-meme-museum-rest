@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface MemeService {
     public List<MemeResponse> getMemeList(
         List<String> tags,
+        String title,
         String sort,
         String order,
         Integer page,

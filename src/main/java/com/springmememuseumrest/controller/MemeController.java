@@ -40,12 +40,13 @@ public class MemeController implements MemeApi {
     @Override
     public ResponseEntity<List<MemeResponse>> apiMemesGet(
         List<String> tags,
+        String title,
         String sort,
         String order,
         Integer page,
         Integer size
     ) {
-        List<MemeResponse> result = memeService.getMemeList(tags, sort, order, page, size);
+        List<MemeResponse> result = memeService.getMemeList(tags, title, sort, order, page, size);
         return ResponseEntity.ok(result);
     }
     
