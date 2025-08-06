@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/api/memes/daily/history").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/tags/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
-                .requestMatchers("/", "/index.html", "/css/**",
+                .requestMatchers("/", "/index.html", "/css/**", "/image/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html", "/swagger-ui/**",
                                 "/api/users/login",
