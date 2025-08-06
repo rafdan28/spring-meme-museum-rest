@@ -4,7 +4,7 @@
 
     Raffaele D'Anna N97000455
 
-# Backend for Meme Museum Web Application
+# Meme Museum – Spring Boot Backend
 <p align="center">
   <!-- Logo per tema chiaro -->
   <img src="src/main/resources/static/image/logo.png#gh-light-mode-only" alt="Meme Museum Logo" width="200"/>
