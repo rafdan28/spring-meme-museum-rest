@@ -5,6 +5,13 @@
     Raffaele D'Anna N97000455
 
 # Backend for Meme Museum Web Application
+<p align="center">
+  <!-- Logo per tema chiaro -->
+  <img src="src/main/resources/static/image/logo.png#gh-light-mode-only" alt="Meme Museum Logo" width="200"/>
+  <!-- Logo per tema scuro -->
+  <img src="src/main/resources/static/image/logo-dark.png#gh-dark-mode-only" alt="Meme Museum Logo Dark" width="200"/>
+</p>
+
 
 ## Prerequisiti
 
