@@ -3,7 +3,7 @@
 ## Author
 
     Raffaele D'Anna N97000455
-
+    
 # Meme Museum – Spring Boot Backend
 <p align="center">
   <!-- Logo per tema chiaro -->
@@ -12,16 +12,108 @@
   <img src="src/main/resources/static/image/logo-dark.png#gh-dark-mode-only" alt="Meme Museum Logo Dark" width="200"/>
 </p>
 
+**Meme Museum Backend** è il servizio REST che gestisce la piattaforma di condivisione, scoperta e interazione con i meme.  
+Sviluppato con [**Spring Boot**](https://spring.io/projects/spring-boot) e documentato tramite [**OpenAPI/Swagger**](https://swagger.io/), fornisce API sicure e performanti integrate con un database [**PostgreSQL**](https://www.postgresql.org/) e storage immagini con [**SeaweedFS**](https://github.com/seaweedfs/seaweedfs).
 
-## Prerequisiti
+---
 
-Prima di iniziare, è essenziale assicurarsi di avere i seguenti strumenti e dipendenze installati sul tuo sistema:
-1. Docker <img src="https://static.alphorm.com/blog-alphorm-uploads/2024/02/08164015/LogoDocker-Guide2024.png" alt="Docker Logo" width="60"/>
+## 🚀 Funzionalità principali
 
-    Verifica la tua versione:
-    ```bash
-    docker --version
-## Istruzioni per l'uso
-1. **Avvio dei container docker per il database e il file system delle immagini**
-   ```bash
-   docker compose -p mememuseum-infrastructure up -d
+- **Autenticazione e autorizzazione JWT**:
+  - Registrazione e login
+  - Recupero credenziali con invio email
+  - Ruoli utente (`USER`, `ADMIN`) con restrizioni d’accesso
+- **Gestione meme**:
+  - Upload immagini (SeaweedFS)
+  - Votazione (upvote/downvote)
+  - Commenti con CRUD e moderazione autore
+  - Modifica e cancellazione meme
+- **Meme del giorno**:
+  - Selezione giornaliera basata su algoritmo di rotazione e punteggio
+  - Storico consultabile con paginazione
+- **Gestione tag**:
+  - Ricerca e filtraggio meme
+- **Sicurezza**:
+  - Protezione da accessi non autorizzati
+  - Validazione input
+- **Documentazione interattiva API**:
+  - Accessibile su `/swagger-ui.html`
+
+---
+
+## 🛠️ Tecnologie utilizzate
+
+- **Backend:** Spring Boot 3, Spring Security, Spring Data JPA, MapStruct
+- **Database:** PostgreSQL
+- **Storage immagini:** SeaweedFS
+- **Documentazione API:** OpenAPI/Swagger
+- **Autenticazione:** JWT
+- **Containerizzazione:** Docker, Docker Compose
+- **Email Service:** JavaMailSender (SMTP / MailTrap per test)
+- **Testing API:** Postman, Playwright (E2E in integrazione con frontend)
+
+---
+
+## 📂 Struttura del progetto
+```plaintext
+
+openapi/   
+├── meme-api.yaml # Specifiche OpenAPI riguardo l'entità meme
+├── user-api.yaml # Specifiche OpenAPI riguardo l'entità user
+
+infrastructure/  
+├── # Infrastruttura conteinerizzata: Database e Storage Immagini
+
+src/
+├── main/
+│   ├── java/com/springmememuseumrest/
+│   │   ├── config/        # Configurazione, JWT e Spring Security
+│   │   │   ├── exception/        # Eccezioni personalizzate
+│   │   ├── controller/    # Controller REST
+│   │   ├── entity/        # Entity JPA
+│   │   ├── mapper/        # MapStruct mapper
+│   │   ├── repository/    # Repository JPA
+│   │   ├── scheduler/     # Schedulatore di scelta meme del giorno 
+│   │   ├── service/       # Servizi applicativi
+│   ├── resources/
+│       ├── static/        # File statici (logo, index, css, ecc.)
+│       ├── application.properties
+└── test/
+    └── java/              # Test unitari e integrazione
+```
+
+## ⚙️ Installazione e avvio
+
+### 1️⃣ Clona il repository
+```bash
+git clone https://github.com/rafdan28/spring-meme-museum-rest.git
+cd spring-meme-museum-rest
+```
+### 2️⃣ Configura il database e lo storage
+- Assicurati di avere **Docker** installato.
+- Avvia PostgreSQL e SeaweedFS tramite Docker Compose:
+```bash
+docker compose up -d
+```
+### 3️⃣ Configura le variabili di ambiente (es. SMTP, JWT secret, Postgres, etc.)
+- Aggiorna **application.properties**
+### 4️⃣ Avvia il backend
+```bash
+./mvnw spring-boot:run
+```
+
+## 🧪 Testing
+Il backend può essere testato con:
+- **Postman** per test manuali
+- **Playwright** (in combinazione con il frontend) per E2E
+- **JUnit** e **Mockito** per test unitari
+
+## 🧪 Documentazione API
+Dopo aver avviato il backend, puoi verificare il corretto funzionamento accedendo alla pagina di benvenuto:
+```bash
+http://localhost:8080
+```
+La documentazione interattiva delle API è disponibile all’indirizzo:
+```bash
+http://localhost:8080/swagger-ui.html
+```
