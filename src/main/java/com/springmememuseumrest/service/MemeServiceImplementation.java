@@ -56,49 +56,56 @@ public class MemeServiceImplementation implements MemeService {
         int pageNumber = (page != null && page >= 0) ? page : 0;
         int pageSize = (size != null && size > 0) ? size : 10;
 
+        // Direzione
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        String sortBy = "createdAt";
+
+        // Campo di ordinamento
+        String sortBy;
+        boolean manualSort = false;
+        if ("upvotes".equalsIgnoreCase(sort) || "downvotes".equalsIgnoreCase(sort)) {
+            sortBy = "createdAt"; // ordinamento DB fallback, poi ordiniamo in memoria
+            manualSort = true;
+        } else if ("createdAt".equalsIgnoreCase(sort)) {
+            sortBy = "createdAt"; // ordinamento DB per data
+        } else {
+            sortBy = "createdAt"; // default
+        }
+
         PageRequest pageable = PageRequest.of(pageNumber, pageSize, Sort.by(direction, sortBy));
 
         // Normalizza tags
         List<String> normalizedTags = Optional.ofNullable(tags)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(String::trim)
-            .filter(s -> !s.isEmpty())
-            .map(String::toLowerCase)
-            .collect(Collectors.toList());
-
-        // Splitta titolo in parole
-        List<String> titleWords = (title == null) ? Collections.emptyList() :
-            Arrays.stream(title.split("\\W+"))
+                .orElse(Collections.emptyList())
+                .stream()
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
+
+        // Splitta titolo in parole
+        List<String> titleWords = (title == null) ? Collections.emptyList() :
+                Arrays.stream(title.split("\\W+"))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .map(String::toLowerCase)
+                        .collect(Collectors.toList());
 
         Specification<Meme> spec = (root, query, cb) -> {
             query.distinct(true);
             List<Predicate> predicates = new ArrayList<>();
 
             if (!normalizedTags.isEmpty()) {
-                // Cerca solo per tag
                 Join<Meme, Tag> tagJoin = root.join("tags", JoinType.LEFT);
                 predicates.add(cb.lower(tagJoin.get("name")).in(normalizedTags));
 
             } else if (!titleWords.isEmpty()) {
-                // Titolo deve contenere tutte le parole (AND)
                 Predicate titleAndPredicate = cb.conjunction();
                 for (String word : titleWords) {
                     titleAndPredicate = cb.and(titleAndPredicate,
                             cb.like(cb.lower(root.get("title")), "%" + word + "%"));
                 }
-
-                // Tag deve coincidere esattamente con almeno una parola
                 Join<Meme, Tag> tagJoin = root.join("tags", JoinType.LEFT);
                 Predicate tagExactMatch = cb.lower(tagJoin.get("name")).in(titleWords);
-
-                // Il match valido è: titolo che contiene tutte le parole OR tag che matcha esattamente
                 predicates.add(cb.or(titleAndPredicate, tagExactMatch));
             }
 
@@ -120,18 +127,21 @@ public class MemeServiceImplementation implements MemeService {
                 .map(meme -> memeMapper.toModel(meme, currentUser))
                 .collect(Collectors.toList());
 
-        if ("upvotes".equalsIgnoreCase(sort)) {
-            result.sort(Comparator.comparingInt(MemeResponse::getUpvotes));
-        } else if ("downvotes".equalsIgnoreCase(sort)) {
-            result.sort(Comparator.comparingInt(MemeResponse::getDownvotes));
-        }
-
-        if ("desc".equalsIgnoreCase(order)) {
-            Collections.reverse(result);
+        // Ordinamento manuale solo per upvotes/downvotes
+        if (manualSort) {
+            if ("upvotes".equalsIgnoreCase(sort)) {
+                result.sort(Comparator.comparingInt(MemeResponse::getUpvotes));
+            } else if ("downvotes".equalsIgnoreCase(sort)) {
+                result.sort(Comparator.comparingInt(MemeResponse::getDownvotes));
+            }
+            if ("desc".equalsIgnoreCase(order)) {
+                Collections.reverse(result);
+            }
         }
 
         return result;
     }
+
 
     @Override
     public ResponseEntity<Void> uploadMeme(String title, List<String> tags, MultipartFile image) {
