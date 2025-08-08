@@ -1,4 +1,4 @@
-package com.springmememuseumrest.model;
+package com.springmememuseumrest.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

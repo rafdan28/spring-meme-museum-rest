@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
-import com.springmememuseumrest.model.User;
+import com.springmememuseumrest.entity.User;
 
 import javax.crypto.SecretKey;
 

@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.openapispec.model.CommentResponse;
 
-import com.springmememuseumrest.model.Comment;
+import com.springmememuseumrest.entity.Comment;
 
 @Mapper(componentModel = "spring")
 public interface CommentMapper {

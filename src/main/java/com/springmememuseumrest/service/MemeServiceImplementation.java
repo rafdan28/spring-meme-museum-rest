@@ -23,11 +23,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.springmememuseumrest.config.exception.ResourceNotFoundException;
+import com.springmememuseumrest.entity.Meme;
+import com.springmememuseumrest.entity.Tag;
+import com.springmememuseumrest.entity.User;
+import com.springmememuseumrest.entity.Vote;
 import com.springmememuseumrest.mapper.MemeMapper;
-import com.springmememuseumrest.model.Meme;
-import com.springmememuseumrest.model.Tag;
-import com.springmememuseumrest.model.User;
-import com.springmememuseumrest.model.Vote;
 import com.springmememuseumrest.repository.MemeRepository;
 import com.springmememuseumrest.repository.TagRepository;
 import com.springmememuseumrest.repository.UserRepository;

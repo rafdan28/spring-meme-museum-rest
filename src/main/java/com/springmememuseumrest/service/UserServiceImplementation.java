@@ -28,9 +28,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.springmememuseumrest.config.JwtConfig;
 import com.springmememuseumrest.config.exception.ResourceNotFoundException;
 import com.springmememuseumrest.config.exception.UnauthorizedException;
+import com.springmememuseumrest.entity.User;
 import com.springmememuseumrest.mapper.MemeMapper;
 import com.springmememuseumrest.mapper.UserMapper;
-import com.springmememuseumrest.model.User;
 import com.springmememuseumrest.repository.MemeRepository;
 import com.springmememuseumrest.repository.UserRepository;
 

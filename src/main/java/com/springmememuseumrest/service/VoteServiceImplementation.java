@@ -1,9 +1,9 @@
 package com.springmememuseumrest.service;
 
 import com.springmememuseumrest.config.exception.ResourceNotFoundException;
+import com.springmememuseumrest.entity.Meme;
+import com.springmememuseumrest.entity.Vote;
 import com.springmememuseumrest.mapper.VoteMapper;
-import com.springmememuseumrest.model.Meme;
-import com.springmememuseumrest.model.Vote;
 import com.springmememuseumrest.repository.MemeRepository;
 import com.springmememuseumrest.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;

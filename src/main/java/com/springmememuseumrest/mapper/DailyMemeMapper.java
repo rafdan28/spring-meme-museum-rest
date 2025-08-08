@@ -5,8 +5,8 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.springmememuseumrest.model.DailyMeme;
-import com.springmememuseumrest.model.Meme;
+import com.springmememuseumrest.entity.DailyMeme;
+import com.springmememuseumrest.entity.Meme;
 
 @Mapper(componentModel = "spring")
 public interface DailyMemeMapper {

@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.openapispec.model.VoteResponse;
 
-import com.springmememuseumrest.model.Vote;
+import com.springmememuseumrest.entity.Vote;
 
 @Mapper(componentModel = "spring")
 public interface VoteMapper {

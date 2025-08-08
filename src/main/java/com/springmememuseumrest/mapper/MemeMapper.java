@@ -2,15 +2,15 @@ package com.springmememuseumrest.mapper;
 
 import io.micrometer.common.lang.Nullable;
 
-import com.springmememuseumrest.model.Vote;
-import com.springmememuseumrest.model.Meme;
-import com.springmememuseumrest.model.Tag;
-import com.springmememuseumrest.model.User;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.openapispec.model.MemeResponse;
 import org.openapitools.jackson.nullable.JsonNullable;
+
+import com.springmememuseumrest.entity.Meme;
+import com.springmememuseumrest.entity.Tag;
+import com.springmememuseumrest.entity.User;
+import com.springmememuseumrest.entity.Vote;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;

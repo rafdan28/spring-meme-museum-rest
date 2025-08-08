@@ -1,32 +1,38 @@
-package com.springmememuseumrest.model;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+package com.springmememuseumrest.entity;
 
 import java.time.Instant;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 @Entity
-@Table(name = "comments")
+@Table(name = "votes", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "meme_id"})
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class Comment {
+public class Vote {
+
+    public enum VoteType {
+        UPVOTE,
+        DOWNVOTE
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Column(nullable = false, length = 1000)
-    private String content;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VoteType type;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -36,12 +42,12 @@ public class Comment {
     @Column(nullable = false)
     private Instant updatedAt;
 
-    // Relazione con User (autore del commento)
+    // Relazione con User (autore del voto)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    //Relazione con Meme
+    // Relazione con Meme
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "meme_id", nullable = false)
     private Meme meme;

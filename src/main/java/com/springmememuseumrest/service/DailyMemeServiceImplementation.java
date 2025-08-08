@@ -13,12 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.springmememuseumrest.entity.DailyMeme;
+import com.springmememuseumrest.entity.Meme;
+import com.springmememuseumrest.entity.User;
+import com.springmememuseumrest.entity.Vote;
 import com.springmememuseumrest.mapper.DailyMemeMapper;
 import com.springmememuseumrest.mapper.MemeMapper;
-import com.springmememuseumrest.model.DailyMeme;
-import com.springmememuseumrest.model.Meme;
-import com.springmememuseumrest.model.User;
-import com.springmememuseumrest.model.Vote;
 import com.springmememuseumrest.repository.DailyMemeRepository;
 import com.springmememuseumrest.repository.MemeRepository;
 

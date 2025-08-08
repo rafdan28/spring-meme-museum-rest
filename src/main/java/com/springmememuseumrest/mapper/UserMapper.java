@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.openapispec.model.RegisterRequest;
 
-import com.springmememuseumrest.model.User;
+import com.springmememuseumrest.entity.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

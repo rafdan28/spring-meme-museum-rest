@@ -5,9 +5,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.springmememuseumrest.model.Meme;
-import com.springmememuseumrest.model.User;
-import com.springmememuseumrest.model.Vote;
+import com.springmememuseumrest.entity.Meme;
+import com.springmememuseumrest.entity.User;
+import com.springmememuseumrest.entity.Vote;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
     Optional<Vote> findByUserAndMeme(

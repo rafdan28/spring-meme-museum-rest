@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.springmememuseumrest.config.exception.ResourceNotFoundException;
 import com.springmememuseumrest.config.exception.UnauthorizedException;
+import com.springmememuseumrest.entity.Comment;
+import com.springmememuseumrest.entity.Meme;
+import com.springmememuseumrest.entity.User;
 import com.springmememuseumrest.mapper.CommentMapper;
-import com.springmememuseumrest.model.Comment;
-import com.springmememuseumrest.model.Meme;
-import com.springmememuseumrest.model.User;
 import com.springmememuseumrest.repository.CommentRepository;
 import com.springmememuseumrest.repository.MemeRepository;
 import com.springmememuseumrest.repository.UserRepository;

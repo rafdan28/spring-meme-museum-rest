@@ -1,4 +1,4 @@
-package com.springmememuseumrest.model;
+package com.springmememuseumrest.entity;
 
 import java.time.Instant;
 import java.time.LocalDate;

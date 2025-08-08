@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.springmememuseumrest.model.Meme;
-import com.springmememuseumrest.model.User;
+import com.springmememuseumrest.entity.Meme;
+import com.springmememuseumrest.entity.User;
 
 public interface MemeRepository extends JpaRepository<Meme, Long>, JpaSpecificationExecutor<Meme>{
     Page<Meme> findDistinctByTags_NameIn(

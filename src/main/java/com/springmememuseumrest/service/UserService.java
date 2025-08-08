@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.springmememuseumrest.model.User;
+import com.springmememuseumrest.entity.User;
 
 @Service
 public interface UserService {
