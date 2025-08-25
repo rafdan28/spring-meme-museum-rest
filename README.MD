@@ -118,6 +118,7 @@ Questo comando genera le interfacce e i modelli necessari all’interno della di
 
 ### 4️⃣ Configura le variabili di ambiente (es. SMTP, JWT secret, Postgres, etc.)
 
+- Rinomina **application.properties.dummy** in **application.properties**
 - Aggiorna **application.properties**
 
 ### 5️⃣ Avvia il backend
