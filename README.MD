@@ -16,7 +16,7 @@
 </p>
 
 **Meme Museum Backend** è il servizio REST che gestisce la piattaforma di condivisione, scoperta e interazione con i meme.  
-Sviluppato con [**Spring Boot**](https://spring.io/projects/spring-boot) e documentato tramite [**OpenAPI/Swagger**](https://swagger.io/), fornisce API sicure e performanti integrate con un database [**PostgreSQL**](https://www.postgresql.org/) e storage immagini con [**SeaweedFS**](https://github.com/seaweedfs/seaweedfs).
+Sviluppato con [**Spring Boot**](https://spring.io/projects/spring-boot) e documentato tramite [**OpenAPI/Swagger**](https://swagger.io/), fornisce API sicure e performanti integrate con un database [**PostgreSQL**](https://www.postgresql.org/) e storage immagini/video con [**SeaweedFS**](https://github.com/seaweedfs/seaweedfs).
 
 ---
 
