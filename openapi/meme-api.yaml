@@ -368,8 +368,13 @@ components:
           type: integer
         title:
           type: string
-        imageUrl:
+        mediaUrl:
           type: string
+        mediaType:
+          type: string
+        mediaSize:
+          type: integer
+          format: int64
         tags:
           type: array
           items:
