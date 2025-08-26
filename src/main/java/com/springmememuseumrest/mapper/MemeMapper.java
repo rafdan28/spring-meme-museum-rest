@@ -31,6 +31,9 @@ public interface MemeMapper {
     @Mapping(target = "downvotes", expression = "java(countDownvotes(meme))")
     @Mapping(target = "comments", expression = "java(countComments(meme))")
     @Mapping(target = "userVote", expression = "java(resolveUserVote(meme, currentUser))")
+    @Mapping(target = "mediaUrl", expression = "java(meme.getMedia() != null ? meme.getMedia().getUrl() : null)")
+    @Mapping(target = "mediaType", expression = "java(meme.getMedia() != null ? meme.getMedia().getType() : null)")
+    @Mapping(target = "mediaSize", expression = "java(meme.getMedia() != null ? meme.getMedia().getSize() : null)")
     MemeResponse toModel(Meme meme, @Nullable User currentUser);
 
     default List<String> toTagNames(List<Tag> tags) {

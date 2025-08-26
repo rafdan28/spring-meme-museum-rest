@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.springmememuseumrest.config.exception.ResourceNotFoundException;
+import com.springmememuseumrest.entity.Media;
 import com.springmememuseumrest.entity.Meme;
 import com.springmememuseumrest.entity.Tag;
 import com.springmememuseumrest.entity.User;
@@ -47,7 +48,7 @@ public class MemeServiceImplementation implements MemeService {
     private final TagRepository tagRepository;
     private final VoteRepository voteRepository;
     private final MemeMapper memeMapper;
-    private final ImageStorageService imageStorageService;
+    private final SeaweedFileService imageStorageService;
     private final UserService userService;
 
 
@@ -144,34 +145,46 @@ public class MemeServiceImplementation implements MemeService {
 
 
     @Override
-    public ResponseEntity<Void> uploadMeme(String title, List<String> tags, MultipartFile image) {
+    public ResponseEntity<Void> uploadMeme(String title, List<String> tags, MultipartFile file) {
         String username = userService.getCurrentAuthenticatedUser().getUsername();
 
-        User author = userRepository
-            .findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
 
-        String imageUrl = null;
+        String fileUrl;
         try {
-            imageUrl = imageStorageService.uploadImage(image, "memes/");
+            fileUrl = imageStorageService.uploadFile(file, file.getContentType(), "memes/"); // puoi cambiare in uploadFile se gestisci video
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();       
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         List<Tag> tagList = tags.stream()
                 .map(tag -> tagRepository.findByName(tag.toLowerCase())
-                    .orElseGet(() -> tagRepository.save(new Tag(tag.toLowerCase()))))
+                        .orElseGet(() -> tagRepository.save(new Tag(tag.toLowerCase()))))
                 .toList();
+
+        Media media = new Media();
+        media.setUrl(fileUrl);
+        
+        if (file.getContentType().startsWith("image/")) {
+            media.setType("IMAGE");
+        } else if (file.getContentType().startsWith("video/")) {
+            media.setType("VIDEO");
+        } else {
+            throw new IllegalArgumentException("Formato file non supportato: " + file.getContentType());
+        }
+        
+        media.setSize(file.getSize());
 
         Meme meme = new Meme();
         meme.setTitle(title);
-        meme.setImageUrl(imageUrl);
         meme.setTags(tagList);
         meme.setAuthor(author);
+        meme.setMedia(media);
 
         memeRepository.save(meme);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();                        
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
@@ -255,7 +268,7 @@ public class MemeServiceImplementation implements MemeService {
         }
 
         try {
-            imageStorageService.deleteImage(meme.getImageUrl());
+            imageStorageService.deleteFile(meme.getMedia().getUrl());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -265,7 +278,7 @@ public class MemeServiceImplementation implements MemeService {
     }
 
     @Override
-    public ResponseEntity<MemeResponse> updateMemeById(Integer id, String title, List<String> tags, MultipartFile image) {
+    public ResponseEntity<MemeResponse> updateMemeById(Integer id, String title, List<String> tags, MultipartFile file) {
         User currentUser = userService.getCurrentAuthenticatedUser();
 
         Meme meme = memeRepository.findById(id.longValue())
@@ -280,14 +293,27 @@ public class MemeServiceImplementation implements MemeService {
         }
 
         try {
-            if (image != null && !image.isEmpty()) {
-                // Cancella immagine precedente da SeaweedFS
-                String oldImagePath = meme.getImageUrl();
-                imageStorageService.deleteImage(oldImagePath);
+            if (file != null && !file.isEmpty()) {
+                // Cancella file precedente da SeaweedFS
+                String oldFilePath = meme.getMedia().getUrl();
+                imageStorageService.deleteFile(oldFilePath);
 
                 // Carica nuova immagine
-                String newImagePath = imageStorageService.uploadImage(image, "memes/");
-                meme.setImageUrl(newImagePath);
+                String newFilePath = imageStorageService.uploadFile(file, file.getContentType(), "memes/");
+
+                Media media = new Media();
+                media.setUrl(newFilePath);
+                
+                if (file.getContentType().startsWith("image/")) {
+                    media.setType("IMAGE");
+                } else if (file.getContentType().startsWith("video/")) {
+                    media.setType("VIDEO");
+                } else {
+                    throw new IllegalArgumentException("Formato file non supportato: " + file.getContentType());
+                }
+        
+                media.setSize(file.getSize());
+                meme.setMedia(media);
             }
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();       

@@ -43,7 +43,7 @@ public class UserServiceImplementation implements UserService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final MemeRepository memeRepository;
-    private final ImageStorageService imageStorageService;
+    private final SeaweedFileService imageStorageService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final JwtConfig jwtConfig;
@@ -196,11 +196,11 @@ public class UserServiceImplementation implements UserService {
                 // Rimuovi vecchia immagine se esiste
                 String oldImagePath = user.getImageProfileUrl();
                 if (oldImagePath != null && !oldImagePath.isBlank()) {
-                    imageStorageService.deleteImage(oldImagePath);
+                    imageStorageService.deleteFile(oldImagePath);
                 }
 
                 // Carica nuova immagine
-                String imageUrl = imageStorageService.uploadImage(image, "users/");
+                String imageUrl = imageStorageService.uploadFile(image, image.getContentType(), "users/");
                 user.setImageProfileUrl(imageUrl);
             } catch (IOException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

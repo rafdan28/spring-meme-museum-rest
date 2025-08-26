@@ -7,12 +7,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @Service
-public interface ImageStorageService{
-    public String uploadImage(
+public interface SeaweedFileService{
+    public String uploadFile(
         MultipartFile image,
-        String type
+        String typeFile,
+        String directory
     ) throws IOException;
-    public void deleteImage(
+    public void deleteFile(
         String fullPath
     ) throws IOException;
 }

@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.springmememuseumrest.config.MultipartInputStreamFileResource;
 
 @Service
-public class ImageStorageServiceImplementation implements ImageStorageService {
+public class SeaweedFileServiceImplementation implements SeaweedFileService {
     
     @Value("${seaweedfs.filer-url}")
     private String filerUrl;
@@ -29,16 +29,23 @@ public class ImageStorageServiceImplementation implements ImageStorageService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public String uploadImage(MultipartFile image, String type) throws IOException {
-        String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
-        String fullPath = uploadPath + type + filename;
+    public String uploadFile(MultipartFile file, String typeFile, String directory) throws IOException {
+        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        if (file.getContentType().startsWith("image/")) {
+            directory += "image/";
+        } else if (file.getContentType().startsWith("video/")) {
+            directory += "video/";
+        } else {
+            throw new IllegalArgumentException("Formato file non supportato: " + file.getContentType());
+        }
+        String fullPath = uploadPath + directory + filename;
         String uploadUrl = filerUrl + fullPath;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", new MultipartInputStreamFileResource(image.getInputStream(), image.getOriginalFilename(), image.getSize()));
+        body.add("file", new MultipartInputStreamFileResource(file.getInputStream(), file.getOriginalFilename(), file.getSize()));
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
@@ -52,7 +59,7 @@ public class ImageStorageServiceImplementation implements ImageStorageService {
     }
 
     @Override
-    public void deleteImage(String fullPath) throws IOException {
+    public void deleteFile(String fullPath) throws IOException {
         String deleteUrl = filerUrl + fullPath;
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -63,7 +70,7 @@ public class ImageStorageServiceImplementation implements ImageStorageService {
         );
 
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new IOException("Failed to delete image: " + response.getStatusCode());
+            throw new IOException("Failed to delete file: " + response.getStatusCode());
         }
     }
 }

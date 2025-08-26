@@ -30,9 +30,9 @@ public class Meme {
     @Column(nullable = false)
     private String title;
 
-    @NotBlank
-    @Column(nullable = false)
-    private String imageUrl;
+    // @NotBlank
+    // @Column(nullable = false)
+    // private String imageUrl;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -63,6 +63,10 @@ public class Meme {
         inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags;
+
+    // Relazione con Media per l'immagine o il video
+    @OneToOne(cascade = CascadeType.ALL)
+    private Media media;
 
     @Column
     private LocalDate lastUsedDate;  
