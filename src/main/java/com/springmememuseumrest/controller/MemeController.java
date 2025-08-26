@@ -54,9 +54,9 @@ public class MemeController implements MemeApi {
     public ResponseEntity<Void> apiMemesPost(
         @RequestParam("title") String title,
         @RequestParam("tags") List<String> tags,
-        @RequestPart("image") MultipartFile image
+        @RequestPart("file") MultipartFile file
     ) {
-        return memeService.uploadMeme(title, tags, image);
+        return memeService.uploadMeme(title, tags, file);
     }
 
     @Override
@@ -94,9 +94,9 @@ public class MemeController implements MemeApi {
         Integer id,
         @RequestParam(required = false) String title,
         @RequestParam(required = false) List<String> tags,
-        @RequestPart(required = false) MultipartFile image
+        @RequestPart(required = false) MultipartFile file
     ) {
-        return memeService.updateMemeById(id, title, tags, image);
+        return memeService.updateMemeById(id, title, tags, file);
     }
 
     @Override

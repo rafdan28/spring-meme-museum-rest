@@ -224,9 +224,7 @@ public class MemeServiceImplementation implements MemeService {
     }
 
     @Override
-    public ResponseEntity<Void> deleteVote(
-        Integer id
-    ) {
+    public ResponseEntity<Void> deleteVote(Integer id) {
         String username = userService.getCurrentAuthenticatedUser().getUsername();
 
         User user = userRepository.findByUsername(username)

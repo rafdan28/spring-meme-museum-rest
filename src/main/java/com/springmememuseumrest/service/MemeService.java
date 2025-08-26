@@ -21,7 +21,7 @@ public interface MemeService {
     public ResponseEntity<Void> uploadMeme(
         String title,
         List<String> tags, 
-        MultipartFile image
+        MultipartFile file
     );
     public ResponseEntity<Void> setVote(
         Integer id, 
@@ -37,7 +37,7 @@ public interface MemeService {
         Integer id, 
         String title, 
         List<String> tags,
-        MultipartFile image
+        MultipartFile file
     );
     public ResponseEntity<Void> deleteMemeById(
         Integer id

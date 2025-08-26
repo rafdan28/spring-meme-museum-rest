@@ -16,7 +16,7 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required: [title, tags, image]
+              required: [title, tags, file]
               properties:
                 title:
                   type: string
@@ -24,7 +24,7 @@ paths:
                   type: array
                   items:
                     type: string
-                image:
+                file:
                   type: string
                   format: binary
       responses:
@@ -166,7 +166,7 @@ paths:
                   type: array
                   items:
                     type: string
-                image:
+                file:
                   type: string
                   format: binary
       responses:
