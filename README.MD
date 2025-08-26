@@ -27,7 +27,7 @@ Sviluppato con [**Spring Boot**](https://spring.io/projects/spring-boot) e docum
   - Recupero credenziali con invio email
   - Ruoli utente (`USER`, `ADMIN`) con restrizioni d’accesso
 - **Gestione meme**:
-  - Upload immagini (SeaweedFS)
+  - Upload immagini e video (SeaweedFS)
   - Votazione (upvote/downvote)
   - Commenti con CRUD e moderazione autore
   - Modifica e cancellazione meme
@@ -48,7 +48,7 @@ Sviluppato con [**Spring Boot**](https://spring.io/projects/spring-boot) e docum
 
 - **Backend:** Spring Boot 3, Spring Security, Spring Data JPA, MapStruct
 - **Database:** PostgreSQL
-- **Storage immagini:** SeaweedFS
+- **Storage immagini e video:** SeaweedFS
 - **Documentazione API:** OpenAPI/Swagger
 - **Autenticazione:** JWT
 - **Containerizzazione:** Docker, Docker Compose
@@ -66,7 +66,7 @@ openapi/
 ├── user-api.yaml # Specifiche OpenAPI riguardo l'entità user
 
 infrastructure/
-├── # Infrastruttura conteinerizzata: Database e Storage Immagini
+├── # Infrastruttura conteinerizzata: Database e Storage Immagini/Video
 
 src/
 ├── main/
@@ -101,7 +101,7 @@ cd spring-meme-museum-rest
 - Avvia PostgreSQL e SeaweedFS tramite Docker Compose:
 
 ```bash
-docker compose up -d
+docker compose -p mememuseum-infrastructure up -d
 ```
 
 ### 3️⃣ Genera le classi dai file OpenAPI
