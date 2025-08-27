@@ -1,6 +1,7 @@
 package com.springmememuseumrest.service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,12 +24,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.springmememuseumrest.config.exception.ResourceNotFoundException;
+import com.springmememuseumrest.entity.DailyMeme;
 import com.springmememuseumrest.entity.Media;
 import com.springmememuseumrest.entity.Meme;
 import com.springmememuseumrest.entity.Tag;
 import com.springmememuseumrest.entity.User;
 import com.springmememuseumrest.entity.Vote;
 import com.springmememuseumrest.mapper.MemeMapper;
+import com.springmememuseumrest.repository.DailyMemeRepository;
 import com.springmememuseumrest.repository.MemeRepository;
 import com.springmememuseumrest.repository.TagRepository;
 import com.springmememuseumrest.repository.UserRepository;
@@ -37,6 +40,7 @@ import com.springmememuseumrest.repository.VoteRepository;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,6 +51,7 @@ public class MemeServiceImplementation implements MemeService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final VoteRepository voteRepository;
+    private final DailyMemeRepository dailyMemeRepository;
     private final MemeMapper memeMapper;
     private final SeaweedFileService imageStorageService;
     private final UserService userService;
@@ -255,6 +260,7 @@ public class MemeServiceImplementation implements MemeService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<Void> deleteMemeById(Integer id) {
         String username = userService.getCurrentAuthenticatedUser().getUsername();
 
@@ -265,6 +271,24 @@ public class MemeServiceImplementation implements MemeService {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
+        // Controlla se esiste in DailyMeme
+        List<DailyMeme> dailyMemeList = dailyMemeRepository.findByMeme(meme);
+
+        if (!dailyMemeList.isEmpty()) {
+            LocalDate today = LocalDate.now();
+
+            // Se è presente per la data odierna, blocca la cancellazione
+            boolean isToday = dailyMemeList.stream()
+                .anyMatch(dm -> dm.getDate().isEqual(today));
+
+            if (isToday) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+
+            // Altrimenti rimuovi tutte le entry vecchie
+            dailyMemeRepository.deleteAll(dailyMemeList);
+        }
+
         try {
             imageStorageService.deleteFile(meme.getMedia().getUrl());
         } catch (IOException e) {
@@ -272,8 +296,10 @@ public class MemeServiceImplementation implements MemeService {
         }
 
         memeRepository.delete(meme);
+
         return ResponseEntity.noContent().build();
     }
+
 
     @Override
     public ResponseEntity<MemeResponse> updateMemeById(Integer id, String title, List<String> tags, MultipartFile file) {

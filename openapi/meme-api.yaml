@@ -202,6 +202,8 @@ paths:
           description: Accesso negato
         "404":
           description: Meme non trovato
+        "409":
+          description: Meme del giorno, non può essere eliminato
 
   /api/memes/{id}/vote:
     post:
