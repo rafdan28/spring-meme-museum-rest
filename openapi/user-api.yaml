@@ -168,12 +168,31 @@ paths:
     get:
       tags:
         - User
-      summary: Recupera tutti i meme creati dall'utente autenticato
+      summary: Recupera i meme creati dall'utente autenticato (paginati)
       security:
         - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: asc o desc
+          schema:
+            type: string
       responses:
         "200":
-          description: Lista dei meme creati
+          description: Lista dei meme creati (paginata)
           content:
             application/json:
               schema:
@@ -259,7 +278,8 @@ components:
       type: object
       properties:
         id:
-          type: long
+          type: integer
+          format: int64
         name:
           type: string
         surname:
