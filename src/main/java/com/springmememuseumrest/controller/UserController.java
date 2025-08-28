@@ -42,11 +42,6 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<Void> apiUsersUsernameDelete(String username) {
-        return userService.deleteUserByAdmin(username);
-    }
-
-    @Override
     public ResponseEntity<RecoverResponse> apiUsersRecoverPost(
         RecoverRequest recoverRequest
     ) {

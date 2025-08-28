@@ -25,9 +25,6 @@ public interface UserService {
     JwtResponse userslogin(
         LoginRequest loginRequest
     );
-    ResponseEntity<Void> deleteUserByAdmin(
-        String username
-    );
     ResponseEntity<RecoverResponse> recoverCredentials(
         RecoverRequest recoverRequest
     );

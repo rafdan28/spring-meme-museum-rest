@@ -45,28 +45,6 @@ paths:
         "401":
           description: Credenziali non valide
 
-  /api/users/{username}:
-    delete:
-      tags:
-        - User
-      summary: Elimina un utente (solo per amministratori)
-      description: Richiede un token JWT con ruolo `admin`.
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: Utente eliminato con successo
-        "403":
-          description: Accesso negato
-        "404":
-          description: Utente non trovato
-
   /api/users/recover:
     post:
       tags:
@@ -202,6 +180,94 @@ paths:
         "401":
           description: Non autorizzato
 
+  /api/admin/users:
+    get:
+      tags:
+        - Admin
+      summary: Recupera tutti gli utenti con conteggio meme creati e meme del giorno
+      description: Richiede un token JWT con ruolo `admin`.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista utenti con conteggio meme creati e meme del giorno
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminUserResponse"
+        "403":
+          description: Accesso negato
+
+  /api/admin/users/{username}:
+    delete:
+      tags:
+        - Admin
+      summary: Elimina un utente
+      description: Richiede un token JWT con ruolo `admin`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Utente eliminato con successo
+        "403":
+          description: Accesso negato
+        "404":
+          description: Utente non trovato
+
+  /api/admin/users/{username}/memes:
+    get:
+      tags:
+        - Admin
+      summary: Recupera tutti i meme di un utente specifico
+      description: Richiede un token JWT con ruolo `admin`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: asc o desc
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lista meme creati dall'utente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MemeResponse"
+        "403":
+          description: Accesso negato
+        "404":
+          description: Utente non trovato
+
 components:
   securitySchemes:
     bearerAuth:
@@ -324,3 +390,24 @@ components:
         userVote:
           type: integer
           nullable: true
+
+    AdminUserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        memeCount:
+          type: integer
+          description: Numero totale di meme creati dall'utente
+        dailyMemeCount:
+          type: integer
+          description: Numero di volte che l'utente è stato scelto nel meme del giorno
