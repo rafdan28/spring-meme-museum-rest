@@ -13,6 +13,10 @@ import org.openapispec.model.RecoverResponse;
 import org.openapispec.model.RegisterRequest;
 import org.openapispec.model.RegisterResponse;
 import org.openapispec.model.UserResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -28,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.springmememuseumrest.config.JwtConfig;
 import com.springmememuseumrest.config.exception.ResourceNotFoundException;
 import com.springmememuseumrest.config.exception.UnauthorizedException;
+import com.springmememuseumrest.entity.Meme;
 import com.springmememuseumrest.entity.User;
 import com.springmememuseumrest.mapper.MemeMapper;
 import com.springmememuseumrest.mapper.UserMapper;
@@ -222,8 +227,8 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public ResponseEntity<List<MemeResponse>> getUserMemes() {
-       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity<List<MemeResponse>> getUserMemes(Integer page, Integer size, String sort, String order) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -233,10 +238,21 @@ public class UserServiceImplementation implements UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Utente non trovato"));
 
-        List<MemeResponse> memes = memeRepository.findAllByAuthor(user).stream()
-            .map(meme -> memeMapper.toModel(meme, user))
-            .toList();
+        int pageNumber = (page != null && page >= 0) ? page : 0;
+        int pageSize = (size != null && size > 0) ? size : 10;
 
-        return ResponseEntity.ok(memes);
+        // Ordinamento: default su createdAt desc
+        Sort.Direction direction = "asc".equalsIgnoreCase(order) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String sortBy = (sort != null && !sort.isEmpty()) ? sort : "createdAt";
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(direction, sortBy));
+
+        Page<Meme> memePage = memeRepository.findAllByAuthor(user, pageable);
+
+        List<MemeResponse> responses = memePage.getContent().stream()
+                .map(meme -> memeMapper.toModel(meme, user))
+                .toList();
+
+        return ResponseEntity.ok(responses);
     }
 }

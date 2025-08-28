@@ -27,5 +27,8 @@ public interface MemeRepository extends JpaRepository<Meme, Long>, JpaSpecificat
     List<Meme> findEligibleDailyMeme(
         @Param("barrageDate") LocalDate barrageDate
     );
-    List<Meme> findAllByAuthor(User author);
+    Page<Meme> findAllByAuthor(
+        User author, 
+        Pageable pageable
+    );
 }

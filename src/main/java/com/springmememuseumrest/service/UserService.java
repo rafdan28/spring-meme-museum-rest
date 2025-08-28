@@ -41,5 +41,10 @@ public interface UserService {
         String email,
         MultipartFile image
     );
-    ResponseEntity<List<MemeResponse>> getUserMemes();
+    ResponseEntity<List<MemeResponse>> getUserMemes(
+        Integer page, 
+        Integer size, 
+        String sort, 
+        String order
+    );
 }

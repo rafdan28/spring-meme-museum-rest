@@ -76,7 +76,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<List<MemeResponse>> apiUsersUserMemesGet() {
-        return userService.getUserMemes();
+    public ResponseEntity<List<MemeResponse>> apiUsersUserMemesGet(Integer page, Integer size, String sort, String order) {
+        return userService.getUserMemes(page, size, sort, order);
     }
 }
