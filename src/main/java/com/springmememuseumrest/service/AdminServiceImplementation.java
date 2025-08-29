@@ -1,11 +1,14 @@
 package com.springmememuseumrest.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openapispec.model.AdminUserResponse;
+import org.openapispec.model.ApiAdminUsersUsernameRolesPostRequest;
 import org.openapispec.model.MemeResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -71,5 +74,34 @@ public class AdminServiceImplementation implements AdminService {
                 
         return ResponseEntity.ok(memeList);
     }
+
+    @Override
+    public ResponseEntity<Void> assignRoles(String username, ApiAdminUsersUsernameRolesPostRequest roles) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Utente non trovato"));
+
+        List<String> rolesList = roles.getRoles();
+        if (rolesList == null || rolesList.isEmpty()) {
+            user.setRoles(null);
+            userRepository.save(user);
+            return ResponseEntity.ok().build();
+        }
+
+        // Normalizzo in maiuscolo
+        List<String> normalized = rolesList.stream()
+                .map(String::toUpperCase)
+                .toList();
+
+        // Ruoli ammessi
+        List<String> validRoles = List.of("USER", "ADMIN");
+        if (!normalized.stream().allMatch(validRoles::contains)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        user.setRoles(new ArrayList<>(normalized));
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+
     
 }
