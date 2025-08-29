@@ -77,7 +77,7 @@ public class UserServiceImplementation implements UserService {
 
         User user = userMapper.toModel(registerRequest);
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        
+        user.setRoles(List.of("USER"));
         userRepository.save(user);
 
         RegisterResponse registerResponse = new RegisterResponse();
