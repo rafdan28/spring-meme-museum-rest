@@ -31,6 +31,9 @@ public interface MemeRepository extends JpaRepository<Meme, Long>, JpaSpecificat
         User author, 
         Pageable pageable
     );
+    List<Meme> findAllByAuthor(
+        User author
+    );
     int countByAuthor(
         User author
     );

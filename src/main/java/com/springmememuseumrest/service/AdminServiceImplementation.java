@@ -1,5 +1,7 @@
 package com.springmememuseumrest.service;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +13,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.springmememuseumrest.config.exception.ResourceNotFoundException;
+import com.springmememuseumrest.entity.DailyMeme;
+import com.springmememuseumrest.entity.Meme;
 import com.springmememuseumrest.entity.User;
 import com.springmememuseumrest.mapper.MemeMapper;
 import com.springmememuseumrest.repository.DailyMemeRepository;
@@ -28,6 +33,7 @@ public class AdminServiceImplementation implements AdminService {
     private final UserRepository userRepository;
     private final MemeRepository memeRepository;
     private final DailyMemeRepository dailyMemeRepository;
+    private final SeaweedFileService seaweedFileService;
     private final MemeMapper memeMapper;
 
     @Override
@@ -47,10 +53,31 @@ public class AdminServiceImplementation implements AdminService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<Void> deleteUser(String username) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new ResourceNotFoundException("Utente non trovato"));
+
+        List<Meme> memes = memeRepository.findAllByAuthor(user);
+
+        for (Meme meme : memes) {
+            // Cancello i DailyMeme associati (anche quello di oggi)
+            List<DailyMeme> dailyEntries = dailyMemeRepository.findByMeme(meme);
+            dailyMemeRepository.deleteAll(dailyEntries);
+
+            if (meme.getMedia() != null) {
+                try {
+                    seaweedFileService.deleteFile(meme.getMedia().getUrl());
+                } catch (IOException e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
+            }
+
+            memeRepository.delete(meme);
+        }
+
         userRepository.delete(user);
+
         return ResponseEntity.noContent().build();
     }
 
