@@ -30,8 +30,8 @@ public class CommentServiceImplementation implements CommentService {
     public List<CommentResponse> getCommentsForMeme(Long memeId) {
         Meme meme = memeRepository.findById(memeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Meme non trovato"));
-        return meme.getComments()
-                .stream()
+
+        return commentRepository.findByMemeOrderByCreatedAtAsc(meme).stream()
                 .map(commentMapper::toDto)
                 .toList();
     }
