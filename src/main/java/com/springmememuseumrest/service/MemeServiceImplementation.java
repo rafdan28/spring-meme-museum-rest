@@ -158,19 +158,28 @@ public class MemeServiceImplementation implements MemeService {
 
         String fileUrl;
         try {
-            fileUrl = imageStorageService.uploadFile(file, file.getContentType(), "memes/"); // puoi cambiare in uploadFile se gestisci video
+            fileUrl = imageStorageService.uploadFile(file, file.getContentType(), "memes/");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        List<Tag> tagList = tags.stream()
-                .map(tag -> tagRepository.findByName(tag.toLowerCase())
-                        .orElseGet(() -> tagRepository.save(new Tag(tag.toLowerCase()))))
+        // Normalizzo i tag: split su "," + trim + lowercase + elimino duplicati vuoti
+        List<String> normalizedTags = tags.stream()
+                .flatMap(tag -> Arrays.stream(tag.split(",")))
+                .map(String::trim)                               // tolgo spazi
+                .filter(t -> !t.isEmpty())                       // ignoro stringhe vuote
+                .map(String::toLowerCase)
+                .distinct()                                      // rimuovo duplicati
+                .toList();
+
+        List<Tag> tagList = normalizedTags.stream()
+                .map(tag -> tagRepository.findByName(tag)
+                        .orElseGet(() -> tagRepository.save(new Tag(tag))))
                 .toList();
 
         Media media = new Media();
         media.setUrl(fileUrl);
-        
+
         if (file.getContentType().startsWith("image/")) {
             media.setType("IMAGE");
         } else if (file.getContentType().startsWith("video/")) {
@@ -178,7 +187,7 @@ public class MemeServiceImplementation implements MemeService {
         } else {
             throw new IllegalArgumentException("Formato file non supportato: " + file.getContentType());
         }
-        
+
         media.setSize(file.getSize());
 
         Meme meme = new Meme();
@@ -344,10 +353,20 @@ public class MemeServiceImplementation implements MemeService {
         }
 
         if (tags != null) {
-            List<Tag> tagList = tags.stream()
-                .map(tag -> tagRepository.findByName(tag.toLowerCase())
-                    .orElseGet(() -> tagRepository.save(new Tag(tag.toLowerCase()))))
+            // Normalizzo i tag: split su "," + trim + lowercase + elimino duplicati vuoti
+            List<String> normalizedTags = tags.stream()
+                .flatMap(tag -> Arrays.stream(tag.split(","))) 
+                .map(String::trim)                               // tolgo spazi
+                .filter(t -> !t.isEmpty())                       // ignoro stringhe vuote
+                .map(String::toLowerCase)
+                .distinct()                                      // rimuovo duplicati
+                .toList();
+
+            List<Tag> tagList = normalizedTags.stream()
+                .map(tag -> tagRepository.findByName(tag)
+                    .orElseGet(() -> tagRepository.save(new Tag(tag))))
                 .collect(Collectors.toCollection(ArrayList::new));
+
             meme.setTags(tagList);
         }
 
