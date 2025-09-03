@@ -178,10 +178,12 @@ paths:
                 $ref: "#/components/schemas/MemeResponse"
         "400":
           description: Dati non validi
-        "401":
-          description: Non autorizzato
+        "403":
+          description: Accesso negato
         "404":
           description: Meme non trovato
+        "409":
+          description: Meme del giorno, non può essere modificato
 
     delete:
       tags:

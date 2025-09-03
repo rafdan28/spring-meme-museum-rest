@@ -321,8 +321,26 @@ public class MemeServiceImplementation implements MemeService {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
+        // Controlla se esiste in DailyMeme
+        List<DailyMeme> dailyMemeList = dailyMemeRepository.findByMeme(meme);
+
+        if (!dailyMemeList.isEmpty()) {
+            LocalDate today = LocalDate.now();
+
+            // Se è presente per la data odierna, blocca l'aggiornamento
+            boolean isToday = dailyMemeList.stream()
+                .anyMatch(dm -> dm.getDate().isEqual(today));
+
+            if (isToday) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+        }
+
         if (title != null && !title.isEmpty()) {
             meme.setTitle(title);
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         try {
@@ -348,6 +366,9 @@ public class MemeServiceImplementation implements MemeService {
                 media.setSize(file.getSize());
                 meme.setMedia(media);
             }
+            else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();       
         }
@@ -369,7 +390,10 @@ public class MemeServiceImplementation implements MemeService {
 
             meme.setTags(tagList);
         }
-
+        else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        
         memeRepository.save(meme);
 
         MemeResponse response = memeMapper.toModel(meme, currentUser);
