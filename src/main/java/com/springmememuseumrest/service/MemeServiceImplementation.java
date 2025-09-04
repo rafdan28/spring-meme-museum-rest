@@ -366,9 +366,9 @@ public class MemeServiceImplementation implements MemeService {
                 media.setSize(file.getSize());
                 meme.setMedia(media);
             }
-            else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
+            // else {
+            //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            // }
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();       
         }
