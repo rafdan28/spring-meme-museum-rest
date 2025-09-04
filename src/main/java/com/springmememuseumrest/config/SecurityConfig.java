@@ -49,19 +49,6 @@ public class SecurityConfig {
                                 "/api/users/login",
                                 "/api/users/register",
                                 "/api/users/recover").permitAll()
-                // .requestMatchers(
-                //     "/", "/index.html", "/css/**", 
-                //     "/v3/api-docs/**", 
-                //     "/swagger-ui.html", "/swagger-ui/**",
-                //     "/api/users/login", 
-                //     "/api/users/register",
-                //     "/api/memes", // solo GET su /api/memes è pubblico
-                //     "/api/memes/daily",
-                //     "/api/memes/{id:[\\d]+}",
-                //     "/api/memes/{id:[\\d]+}/comment",
-                //     "/api/memes/{id:[\\d]+}/vote",
-                //     "/api/tags/**"
-                // ).permitAll()
                 .anyRequest().authenticated()
             )
             // Stateless session (required for JWT)
